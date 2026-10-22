@@ -53,31 +53,20 @@ export function HeroScrollExperience({ isAudioPlaying, onToggleAudio }: { isAudi
         trigger: root.current,
         start: 'top top',
         end: 'bottom bottom',
-        snap: {
-          snapTo: 1 / (WORDS.length - 1),
-          duration: { min: 0.2, max: 0.5 },
-          delay: 0.04,
-          ease: 'power2.out',
-        },
+        snap: desktop
+          ? {
+              snapTo: 1 / (WORDS.length - 1),
+              duration: { min: 0.2, max: 0.45 },
+              delay: 0.05,
+              ease: 'power2.out',
+            }
+          : undefined,
         onUpdate: self => updateActiveWord(self.progress),
         onRefresh: self => updateActiveWord(self.progress),
       });
-
-      const timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'bottom bottom',
-          end: 'bottom top',
-          scrub: .7,
-        },
-      });
-      timeline
-        .to('.hero-headline-group', { yPercent: -18, scale: 1.045, opacity: 0, duration: .6, ease: 'none' }, 0)
-        .to('.hero-footer, .hero-side-note, .hero-word-nav, .hero-eyebrow, .hero-subtitle', { opacity: 0, duration: .4, ease: 'none' }, 0)
-        .to('.hero-scene', { scale: 1.25, opacity: 0, duration: .7, ease: 'none' }, .08);
     }, root);
     return () => context.revert();
-  }, [reduced]);
+  }, [reduced, desktop]);
 
   const ActiveIcon = WORDS[active].Icon;
   return <section id="hero" ref={root} className="hero">
@@ -88,8 +77,8 @@ export function HeroScrollExperience({ isAudioPlaying, onToggleAudio }: { isAudi
         <h1 key={active} className={`hero-headline ${WORDS[active].title.length > 7 ? 'hero-headline-long' : ''}`} aria-label={WORDS[active].title}>
           {WORDS[active].title.split('').map((letter, i) => <span className="hero-letter-mask" key={i} aria-hidden="true"><span className="hero-letter">{letter}</span></span>)}
         </h1>
+        <p className="hero-subtitle">{WORDS[active].subtitle}</p>
       </div>
-      <p className="hero-subtitle">{WORDS[active].subtitle}</p>
       <div className="hero-scene"><Suspense fallback={null}><ThreeCanvas /></Suspense></div>
       <div className="hero-side-note">
         <div className="hero-side-note-top">

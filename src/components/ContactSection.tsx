@@ -394,7 +394,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
 
         {/* RIGHT COLUMN: Simple, Clean Direct Form */}
         <div className="dispatch-console-card">
-          <div className="console-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+          <div className="console-top-bar">
             <div className="console-title-group">
               <span className="eyebrow icon-label">
                 <Mail size={13} /> Direct Message to {PROFILE_INFO.email}
@@ -403,12 +403,11 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
             </div>
             <button
               type="button"
-              className="locate-mini-btn"
+              className="locate-mini-btn console-template-btn"
               onClick={() => setShowTemplateModal(true)}
-              style={{ padding: '6px 12px', fontSize: '11.5px', cursor: 'pointer' }}
             >
               <Eye size={13} />
-              <span>{gasUrl.trim() ? 'Custom HTML Aktif' : 'Desain Email Gmail'}</span>
+              <span>{isValidGasWebhookUrl(gasUrl) ? 'Custom HTML Aktif' : 'Desain Email Gmail'}</span>
             </button>
           </div>
 
