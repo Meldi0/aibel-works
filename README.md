@@ -1,20 +1,48 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# AIBEL Works — Muhamad Eldi Portfolio
 
-# Run and deploy your AI Studio app
+Interactive portfolio, project archive, and R&D showcase of **Muhamad Eldi (aka AIBEL)** — Full-Stack Developer, Creative Technologist, and AI Explorer based in Bandung, Indonesia.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/e766c0a4-139f-4d30-abd6-bdeb60b79ea4
+## Overview
 
-## Run Locally
+- **Identity & Interactive Portrait:** Liquid-brush canvas reveal with custom persona artwork and editorial typography.
+- **3D WebGL Hero Experience:** Real-time Three.js optical glass sculpture synchronized with GSAP ScrollTrigger & Lenis smooth scrolling.
+- **Featured Project Archive (09 Visual Case Studies):** Full-stack web platforms, AI-powered workflows, creative tools, and interactive 3D environments.
+- **R&D Lab & Ongoing Explorations (09 Technical Tracks):** Local AI Shipment Agent (Ollama + MongoDB), Personal Local AI Assistant, POSO System, Regional Performance Dashboard, iPOS5 Data Integration, Midnight District, GlyphLab, Customer Analytics, and Operational Data Tools.
+- **Direct Gmail Dispatch & Security Hardening:**
+  - Direct inbox integration (`muheldinug122@gmail.com`) with auto-detected visitor location & timezone.
+  - Custom responsive HTML email engine with sandboxed `<iframe sandbox="">` live preview.
+  - Multi-layer protection: Anti-Bot Honeypot (`_honey`), 30s browser rate limiting, 20s Google Apps Script server cache lock, strict input sanitization, and Content Security Policy (CSP) headers.
 
-**Prerequisites:**  Node.js
+---
 
+## Tech Stack
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Frontend:** React 19, TypeScript, Vite 6, Tailwind CSS 4
+- **Motion & 3D:** GSAP + ScrollTrigger, Motion, Lenis Smooth Scroll, Three.js (WebGL)
+- **Icons:** Lucide React
+
+---
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server (http://localhost:3000)
+npm run dev
+
+# Type-check & build for production
+npm run lint
+npm run build
+```
+
+---
+
+## Contact
+
+- **Developer:** Muhamad Eldi (aka AIBEL)
+- **Email:** [muheldinug122@gmail.com](mailto:muheldinug122@gmail.com)
+- **GitHub:** [github.com/Meldi0](https://github.com/Meldi0)
