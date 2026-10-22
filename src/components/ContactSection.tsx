@@ -54,6 +54,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
   const [email, setEmail] = useState('');
   const [senderLocation, setSenderLocation] = useState('');
   const [detectingLoc, setDetectingLoc] = useState(false);
+  const [locHint, setLocHint] = useState('');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
@@ -80,36 +81,121 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
     }
   }, []);
 
-  const detectVisitorLocation = () => {
-    setDetectingLoc(true);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    fetch('https://ipwho.is/', {
-      signal: controller.signal,
-      referrerPolicy: 'no-referrer',
-      credentials: 'omit',
-    })
-      .then(res => (res.ok ? res.json() : null))
-      .then(data => {
-        if (data && data.success && typeof data.city === 'string') {
-          const locString = [data.city, data.region, data.country]
-            .filter((part): part is string => typeof part === 'string' && part.length > 0)
-            .map(part => sanitizeSingleLine(part, 40))
-            .join(', ');
-          if (locString) setSenderLocation(locString.slice(0, 100));
+  const reverseGeocodeCoords = async (lat: number, lon: number): Promise<string> => {
+    // 1. Primary: OpenStreetMap Nominatim (accurate street/suburb/district/city in Indonesia)
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=14&accept-language=id`,
+        {
+          signal: controller.signal,
+          referrerPolicy: 'no-referrer',
+          credentials: 'omit',
         }
-      })
-      .catch(() => {
-        // Silent fallback
-      })
-      .finally(() => {
-        clearTimeout(timeoutId);
+      );
+      clearTimeout(t);
+      if (res.ok) {
+        const data = await res.json();
+        const addr = data?.address || {};
+        const district =
+          addr.suburb || addr.city_district || addr.village || addr.town || addr.municipality || '';
+        const city = addr.city || addr.county || addr.regency || addr.state_district || '';
+        const state = addr.state || '';
+        const country = addr.country || '';
+        const parts = [district, city, state, country]
+          .filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
+          .map(p => sanitizeSingleLine(p, 45))
+          .filter((p, idx, arr) => arr.indexOf(p) === idx);
+        if (parts.length > 0) {
+          return parts.join(', ').slice(0, 100);
+        }
+      }
+    } catch {
+      // Fallback to BigDataCloud below
+    }
+
+    // 2. Secondary: BigDataCloud Reverse Geocoding (fast, zero-key, CORS-friendly)
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=id`,
+        {
+          signal: controller.signal,
+          referrerPolicy: 'no-referrer',
+          credentials: 'omit',
+        }
+      );
+      clearTimeout(t);
+      if (res.ok) {
+        const data = await res.json();
+        const parts = [data?.locality, data?.city, data?.principalSubdivision, data?.countryName]
+          .filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
+          .map(p => sanitizeSingleLine(p, 45))
+          .filter((p, idx, arr) => arr.indexOf(p) === idx);
+        if (parts.length > 0) {
+          return parts.join(', ').slice(0, 100);
+        }
+      }
+    } catch {
+      // Ignore
+    }
+
+    return `GPS (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+  };
+
+  const detectVisitorLocation = (silent = false) => {
+    if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
+      if (!silent) {
+        setLocHint('Browser perangkat ini tidak mendukung sensor lokasi GPS.');
+      }
+      return;
+    }
+
+    setDetectingLoc(true);
+    if (!silent) setLocHint('Mengambil titik GPS akurat dari perangkat Anda...');
+
+    navigator.geolocation.getCurrentPosition(
+      async position => {
+        const { latitude, longitude } = position.coords;
+        const resolvedPlace = await reverseGeocodeCoords(latitude, longitude);
+        setSenderLocation(resolvedPlace);
+        setLocHint('Lokasi real GPS berhasil terdeteksi.');
         setDetectingLoc(false);
-      });
+        setTimeout(() => setLocHint(''), 4000);
+      },
+      err => {
+        setDetectingLoc(false);
+        if (silent) return;
+        if (err.code === err.PERMISSION_DENIED) {
+          setLocHint('Izin GPS ditolak. Izinkan akses lokasi di browser atau ketik lokasi manual.');
+        } else if (err.code === err.TIMEOUT) {
+          setLocHint('Waktu deteksi GPS habis. Pastikan GPS aktif atau ketik manual.');
+        } else {
+          setLocHint('Gagal membaca sensor GPS perangkat. Silakan ketik lokasi Anda.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
+      }
+    );
   };
 
   useEffect(() => {
-    detectVisitorLocation();
+    // Only auto-fetch on load if the user has already granted GPS permission previously
+    if (typeof navigator !== 'undefined' && 'permissions' in navigator) {
+      navigator.permissions
+        .query({ name: 'geolocation' })
+        .then(statusObj => {
+          if (statusObj.state === 'granted') {
+            detectVisitorLocation(true);
+          }
+        })
+        .catch(() => {});
+    }
     return () => clearTimeout(timer.current);
   }, []);
 
@@ -503,11 +589,12 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
                     <button
                       type="button"
                       className="locate-mini-btn"
-                      onClick={detectVisitorLocation}
-                      title="Deteksi lokasi otomatis"
+                      onClick={() => detectVisitorLocation(false)}
+                      disabled={detectingLoc}
+                      title="Ambil lokasi GPS real perangkat Anda"
                     >
-                      <LocateFixed size={12} />
-                      <span>{detectingLoc ? 'Mendeteksi...' : 'Auto-Lokasi'}</span>
+                      <LocateFixed size={12} className={detectingLoc ? 'spin-icon' : ''} />
+                      <span>{detectingLoc ? 'Mencari GPS...' : 'Auto-Lokasi (GPS)'}</span>
                     </button>
                   </div>
                   <input
@@ -515,9 +602,17 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
                     name="location"
                     maxLength={100}
                     value={senderLocation}
-                    onChange={e => setSenderLocation(e.target.value)}
-                    placeholder="Contoh: Bandung, Indonesia"
+                    onChange={e => {
+                      setSenderLocation(e.target.value);
+                      if (locHint) setLocHint('');
+                    }}
+                    placeholder="Klik Auto-Lokasi (GPS) atau ketik kota Anda"
                   />
+                  {locHint && (
+                    <small style={{ fontSize: '11.5px', color: '#3b6094', lineHeight: 1.4 }}>
+                      {locHint}
+                    </small>
+                  )}
                 </div>
               </div>
 
