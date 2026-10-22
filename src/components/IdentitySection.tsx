@@ -9,6 +9,7 @@ export function IdentitySection() {
   const portraitRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [personaLocked, setPersonaLocked] = useState(false);
+  const [showFullBio, setShowFullBio] = useState(false);
   const { reduced, desktop } = useMotionSettings();
 
   useLayoutEffect(() => {
@@ -303,14 +304,23 @@ export function IdentitySection() {
           <div className="identity-narrative">
             <p className="identity-narrative-lead"><Reveal>Gue Muhamad Eldi, also known as AIBEL, seorang student developer yang suka banget ngulik teknologi, experimenting with ideas, dan membangun sesuatu dari nol.</Reveal></p>
             <p className="identity-narrative-body">
-              My journey in programming is driven by curiosity. Gue nggak mau cuma tahu cara menggunakan teknologi, tapi juga pengen ngerti gimana semuanya bekerja behind the scenes. Ketertarikan gue nggak terbatas di satu bidang — I enjoy working on frontend development, backend architecture, database systems, AI integration, and creative digital experiences. Gue suka bikin sesuatu yang nggak cuma functional, tapi juga visually appealing, smooth, intuitive, dan punya personality sendiri.
+              My journey in programming is driven by curiosity. Gue nggak mau cuma tahu cara menggunakan teknologi, tapi juga pengen ngerti gimana semuanya bekerja behind the scenes — mulai dari frontend development, backend architecture, database systems, hingga AI integration.
             </p>
-            <p className="identity-narrative-body">
-              From web applications and backend systems to AI-powered tools, data dashboards, and creative experiments, I like exploring different sides of technology. I work with technologies including <strong>JavaScript, TypeScript, PHP, Laravel, React, Node.js, Python, MySQL, and MongoDB</strong>, while continuously learning and experimenting with new tools. Sometimes I build things to solve actual problems. Sometimes I build them simply because I think, <em>“What if I could make this?”</em>
-            </p>
-            <p className="identity-narrative-body">
-              Whether I’m building a Laravel application, experimenting with React interfaces, integrating MongoDB with a local AI Agent, or developing an interactive web tool, I always look for ways to improve the experience. I care about the details: typography, layouts, micro-interactions, API structures, database relationships, performance, and the little things that make a product feel polished. And yes, sometimes I spend way too much time perfecting something that already works — but that’s part of the process. I’m still learning, still experimenting, and definitely still making mistakes.
-            </p>
+            <div className={`identity-narrative-extra ${showFullBio ? 'is-expanded' : ''}`}>
+              <p className="identity-narrative-body">
+                From web applications and backend systems to AI-powered tools, data dashboards, and creative experiments, I work with technologies including <strong>JavaScript, TypeScript, PHP, Laravel, React, Node.js, Python, MySQL, and MongoDB</strong>. Sometimes I build things to solve actual problems. Sometimes I build them simply because I think, <em>“What if I could make this?”</em>
+              </p>
+              <p className="identity-narrative-body">
+                Whether I’m building a Laravel application, experimenting with React interfaces, integrating MongoDB with a local AI Agent, or developing an interactive web tool, I care about typography, layouts, micro-interactions, API structures, and performance.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="bio-expand-btn"
+              onClick={() => setShowFullBio(prev => !prev)}
+            >
+              {showFullBio ? 'Ringkas cerita −' : 'Baca selengkapnya +'}
+            </button>
           </div>
         </div>
         <div className="identity-facts">

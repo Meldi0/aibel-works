@@ -189,8 +189,11 @@ const LAB_EXPLORATIONS = [
 
 export function ProjectsSection() {
   const [selected, setSelected] = useState<ProjectItem | null>(null);
+  const [expandedLabs, setExpandedLabs] = useState<Record<string, boolean>>({});
   const close = useCallback(() => setSelected(null), []);
   const reduced = useReducedMotion();
+  const toggleLab = (code: string) =>
+    setExpandedLabs(prev => ({ ...prev, [code]: !prev[code] }));
   return <>
     <section id="projects" data-tone="light" className="projects-section section-shell">
       <SectionLabel number="04" detail="Things I've been building">Featured Projects</SectionLabel>
@@ -223,8 +226,13 @@ export function ProjectsSection() {
         <div className="what-i-do-grid">
           {LAB_EXPLORATIONS.map(item => {
             const Icon = item.Icon;
+            const isExpanded = !!expandedLabs[item.code];
             return (
-              <article className="metric what-i-do-card lab-card" key={item.code}>
+              <article
+                className={`metric what-i-do-card lab-card ${isExpanded ? 'is-expanded' : ''}`}
+                key={item.code}
+                onClick={() => toggleLab(item.code)}
+              >
                 <div className="card-top-meta">
                   <span className="card-icon-badge"><Icon size={16} /></span>
                   <span className="eyebrow">{item.code} · {item.status}</span>
@@ -232,8 +240,11 @@ export function ProjectsSection() {
                 <h4 className="what-i-do-title">{item.title}</h4>
                 <p className="metric-sublabel">{item.category}</p>
                 <p className="lab-tagline">“{item.tagline}”</p>
-                <p className="metric-detail">{item.description}</p>
-                <div className="tech-tags" style={{ marginTop: '18px' }}>
+                <p className="metric-detail lab-description">{item.description}</p>
+                <span className="lab-read-more">
+                  {isExpanded ? 'Sembunyikan −' : 'Selengkapnya +'}
+                </span>
+                <div className="tech-tags" style={{ marginTop: '14px' }}>
                   {item.stack.map(tech => <span key={tech}>{tech}</span>)}
                 </div>
               </article>
