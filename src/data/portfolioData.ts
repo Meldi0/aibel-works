@@ -381,4 +381,6 @@ export const PROFILE_INFO = {
   personaPortraitImage: new URL('../assets/images/eldi_aibel_persona.jpg', import.meta.url).href,
   email: 'muheldinug122@gmail.com',
   github: 'https://github.com/Meldi0',
+  instagram: 'https://www.instagram.com/_kubill/',
+  instagramHandle: '@_kubill',
 };

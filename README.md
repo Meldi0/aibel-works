@@ -45,4 +45,5 @@ npm run build
 
 - **Developer:** Muhamad Eldi (aka AIBEL)
 - **Email:** [muheldinug122@gmail.com](mailto:muheldinug122@gmail.com)
+- **Instagram:** [@_kubill](https://www.instagram.com/_kubill/)
 - **GitHub:** [github.com/Meldi0](https://github.com/Meldi0)

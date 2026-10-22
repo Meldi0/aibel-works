@@ -8,6 +8,7 @@ import {
   Code2,
   Copy,
   Eye,
+  Instagram,
   Loader2,
   LocateFixed,
   Mail,
@@ -473,6 +474,14 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
               </span>
               <a className="text-link" href={PROFILE_INFO.github} target="_blank" rel="noopener noreferrer">
                 github.com/Meldi0 <ArrowUpRight size={17} />
+              </a>
+            </div>
+            <div>
+              <span className="eyebrow icon-label">
+                <Instagram size={13} /> Instagram
+              </span>
+              <a className="text-link" href={PROFILE_INFO.instagram} target="_blank" rel="noopener noreferrer">
+                instagram.com/_kubill ({PROFILE_INFO.instagramHandle}) <ArrowUpRight size={17} />
               </a>
             </div>
           </div>
