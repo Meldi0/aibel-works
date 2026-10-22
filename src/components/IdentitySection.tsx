@@ -325,8 +325,8 @@ export function IdentitySection() {
         </div>
         <div className="identity-facts">
           <div><span className="eyebrow icon-label"><User size={13} /> Developer Identity</span><h3>Muhamad Eldi (AIBEL)</h3><p>Full-Stack Developer • Creative Technologist • AI Explorer</p><p className="muted">Crafting digital experiences through code, creativity, and curiosity.</p></div>
-          <div><span className="eyebrow icon-label"><Sparkles size={13} /> Currently Into</span><h3>Focus Areas</h3><p>Full-Stack Development, AI Agents, Creative Web Experiences, UI/UX Engineering & Data-Driven Applications.</p></div>
-          <div><span className="eyebrow icon-label"><Code2 size={13} /> 09 / My Developer Identity</span><h3>The person behind AIBEL</h3><p>PHP and Laravel are part of my backend toolkit for structured application logic, APIs, and data-driven systems, alongside frontend frameworks, databases, and local AI tools.</p></div>
+          <div><span className="eyebrow icon-label"><Sparkles size={13} /> Education & Background</span><h3>Software Engineering (RPL)</h3><p>Vocational High School (SMK) in Software Engineering (Rekayasa Perangkat Lunak) — building web, backend, and AI systems from the ground up.</p></div>
+          <div><span className="eyebrow icon-label"><Code2 size={13} /> Industry Experience (PKL)</span><h3>PT Pos Indonesia</h3><p>Operations Control Division (Pengendalian Operasi) — developing operational dashboards, local AI shipment agents, and enterprise data tools.</p></div>
           <div><span className="eyebrow icon-label"><Compass size={13} /> Core Philosophy</span><h3>Always Evolving</h3><p>I believe being versatile is valuable, but understanding the technologies I use is even more important. Not here to know everything. Here to keep figuring things out.</p></div>
         </div>
         <blockquote><Reveal>“My mindset? Keep learning. Keep building. Keep improving.”</Reveal></blockquote>

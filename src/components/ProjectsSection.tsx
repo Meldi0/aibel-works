@@ -255,26 +255,26 @@ export function ProjectsSection() {
     </section>
 
     <section id="experience" data-tone="dark" className="experience-section section-shell">
-      <SectionLabel number="05" detail="Learning beyond the classroom">Experience</SectionLabel>
+      <SectionLabel number="05" detail="SMK Software Engineering (RPL) • PT Pos Indonesia">Experience & Education</SectionLabel>
       <div className="section-heading-row">
         <h2 className="display-heading"><Reveal>Learning beyond</Reveal><Reveal delay={.08}><span className="muted">the classroom.</span></Reveal></h2>
-        <p><Reveal>PT Graha Pos Indonesia · Bandung, Indonesia | 2026</Reveal></p>
+        <p><Reveal>PT Pos Indonesia · Operations Control (Pengendalian Operasi) | Bandung</Reveal></p>
       </div>
       <div className="experience-card">
         <div className="experience-header">
           <div>
-            <span className="eyebrow icon-label"><Briefcase size={13} /> 2026 · Bandung, Indonesia</span>
-            <h3>Software Development, Data & AI Intern</h3>
-            <p className="project-subtitle">PT GRAHA POS INDONESIA</p>
+            <span className="eyebrow icon-label"><Briefcase size={13} /> Internship (PKL) · Operations Control Division (Pengendalian Operasi)</span>
+            <h3>Operations Control, Software & AI Intern</h3>
+            <p className="project-subtitle">PT POS INDONESIA · BANDUNG, INDONESIA</p>
           </div>
         </div>
         <div className="experience-body">
           <div className="experience-narrative">
-            <p>During my internship, I gained hands-on exposure to software development, AI experimentation, enterprise data, and technology-driven logistics operations. Working in a real operational environment helped me understand how digital systems support everyday business processes.</p>
-            <p>One thing I learned is that building a real application is very different from building a small demo. Real-world systems need reliable data, clear workflows, thoughtful interfaces, and solutions that actually help people do their jobs. That experience made me even more interested in building software with practical value.</p>
+            <p>As a Software Engineering (Rekayasa Perangkat Lunak / RPL) vocational student, I completed my industry internship (PKL) at PT Pos Indonesia in the <strong>Operations Control (Pengendalian Operasi)</strong> division—gaining hands-on exposure to software development, AI experimentation, enterprise data, and national logistics operations.</p>
+            <p>One thing I learned in Operations Control is that building a real application is very different from a small classroom demo. Real-world logistics systems need reliable data, clear monitoring workflows, thoughtful interfaces, and solutions that actually help operational teams track and control shipments.</p>
           </div>
           <div>
-            <span className="eyebrow experience-list-label">Key responsibilities & exposure</span>
+            <span className="eyebrow experience-list-label">Key responsibilities in Operations Control</span>
             <ul className="experience-list">
               {INTERNSHIP_POINTS.map(point => <li key={point}><CheckCircle2 size={15} className="list-check-icon" /><span>{point}</span></li>)}
             </ul>

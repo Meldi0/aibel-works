@@ -23,7 +23,7 @@ export function ProjectModal({ project, onClose }: { project: ProjectItem; onClo
         </div><aside className="case-sidebar"><h3>Technology stack</h3><div className="tech-tags">{project.technologies.map(tech => <span key={tech}>{tech}</span>)}</div>
           {project.githubUrl && <a className="text-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer">View source repository <ArrowUpRight size={16} /></a>}
           {project.liveUrl && <a className="text-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Explore live environment <ArrowUpRight size={16} /></a>}
-          <p className="case-seal">Muhamad Eldi • aka AIBEL<br />Full-Stack Developer • Creative Technologist • AI Explorer<br />PT Graha Pos Indonesia · Bandung, 2026</p>
+          <p className="case-seal">Muhamad Eldi • aka AIBEL<br />Software Engineering (SMK RPL) • Full-Stack & AI Developer<br />PT Pos Indonesia · Operations Control · Bandung</p>
         </aside></div>
       </div>
     </div>
