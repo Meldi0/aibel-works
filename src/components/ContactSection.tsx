@@ -50,6 +50,24 @@ function buildGmailComposeUrl(subject: string, body: string) {
   return `https://mail.google.com/mail/?${params.toString()}`;
 }
 
+function TikTokIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+  );
+}
+
 export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -435,9 +453,41 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
             <p className="availability icon-label">
               <Sparkles size={14} /> <em>Still learning. Still shipping. Still curious.</em>
             </p>
+            <div className="social-pills-row" aria-label="Social Media Links">
+              <a
+                className="social-pill"
+                href={PROFILE_INFO.github}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Code2 size={14} />
+                <span>GitHub</span>
+                <ArrowUpRight size={13} />
+              </a>
+              <a
+                className="social-pill"
+                href={PROFILE_INFO.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram size={14} />
+                <span>{PROFILE_INFO.instagramHandle}</span>
+                <ArrowUpRight size={13} />
+              </a>
+              <a
+                className="social-pill"
+                href={PROFILE_INFO.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <TikTokIcon size={14} />
+                <span>{PROFILE_INFO.tiktokHandle}</span>
+                <ArrowUpRight size={13} />
+              </a>
+            </div>
           </div>
 
-          <div className="contact-details" style={{ marginTop: '42px' }}>
+          <div className="contact-details" style={{ marginTop: '36px' }}>
             <div>
               <span className="eyebrow icon-label">
                 <User size={13} /> Developer Identity
@@ -470,7 +520,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
             </div>
             <div>
               <span className="eyebrow icon-label">
-                <Code2 size={13} /> GitHub repository
+                <Code2 size={13} /> GitHub Repository
               </span>
               <a className="text-link" href={PROFILE_INFO.github} target="_blank" rel="noopener noreferrer">
                 github.com/Meldi0 <ArrowUpRight size={17} />
@@ -482,6 +532,14 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
               </span>
               <a className="text-link" href={PROFILE_INFO.instagram} target="_blank" rel="noopener noreferrer">
                 instagram.com/_kubill ({PROFILE_INFO.instagramHandle}) <ArrowUpRight size={17} />
+              </a>
+            </div>
+            <div>
+              <span className="eyebrow icon-label">
+                <TikTokIcon size={13} /> TikTok
+              </span>
+              <a className="text-link" href={PROFILE_INFO.tiktok} target="_blank" rel="noopener noreferrer">
+                tiktok.com/@_ldii1 ({PROFILE_INFO.tiktokHandle}) <ArrowUpRight size={17} />
               </a>
             </div>
           </div>
@@ -685,10 +743,21 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
       </div>
 
       <footer className="site-footer">
-        <span>© 2026 Muhamad Eldi. Built with curiosity, creativity, and a lot of iterations.</span>
-        <button onClick={onBackToTop} className="text-link">
-          Back to top <ArrowUp size={16} />
-        </button>
+        <span>© 2026 Muhamad Eldi (aka AIBEL). Built with curiosity, creativity, and a lot of iterations.</span>
+        <div className="site-footer-links">
+          <a className="text-link" href={PROFILE_INFO.github} target="_blank" rel="noopener noreferrer">
+            GitHub <ArrowUpRight size={14} />
+          </a>
+          <a className="text-link" href={PROFILE_INFO.instagram} target="_blank" rel="noopener noreferrer">
+            Instagram <ArrowUpRight size={14} />
+          </a>
+          <a className="text-link" href={PROFILE_INFO.tiktok} target="_blank" rel="noopener noreferrer">
+            TikTok <ArrowUpRight size={14} />
+          </a>
+          <button onClick={onBackToTop} className="text-link">
+            Back to top <ArrowUp size={16} />
+          </button>
+        </div>
       </footer>
 
       {showTemplateModal && (

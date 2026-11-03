@@ -137,8 +137,13 @@ export function buildModernHtmlEmail(data: EmailTemplateData): string {
 
           <!-- Footer -->
           <tr>
-            <td style="background-color:#fafaf7;border-top:1px solid #eaeae5;padding:18px 34px;font-size:12px;color:#6b7280;line-height:1.5;">
-              Dikirim langsung dari <strong>Portofolio Resmi Muhamad Eldi (aka AIBEL)</strong> &bull; ${escapeHtml(data.recipientEmail)}
+            <td style="background-color:#fafaf7;border-top:1px solid #eaeae5;padding:18px 34px;font-size:12px;color:#6b7280;line-height:1.6;">
+              <div>Dikirim langsung dari <strong>Portofolio Resmi Muhamad Eldi (aka AIBEL)</strong> &bull; ${escapeHtml(data.recipientEmail)}</div>
+              <div style="margin-top:4px;font-size:11.5px;color:#9ca3af;">
+                GitHub: <a href="https://github.com/Meldi0" style="color:#4b5563;text-decoration:none;">Meldi0</a> &nbsp;&bull;&nbsp;
+                Instagram: <a href="https://www.instagram.com/_kubill/" style="color:#4b5563;text-decoration:none;">@_kubill</a> &nbsp;&bull;&nbsp;
+                TikTok: <a href="https://www.tiktok.com/@_ldii1" style="color:#4b5563;text-decoration:none;">@_ldii1</a>
+              </div>
             </td>
           </tr>
 

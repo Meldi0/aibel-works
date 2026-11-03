@@ -383,4 +383,6 @@ export const PROFILE_INFO = {
   github: 'https://github.com/Meldi0',
   instagram: 'https://www.instagram.com/_kubill/',
   instagramHandle: '@_kubill',
+  tiktok: 'https://www.tiktok.com/@_ldii1',
+  tiktokHandle: '@_ldii1',
 };
