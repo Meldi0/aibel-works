@@ -329,10 +329,10 @@ export function ProjectsSection() {
       </div>
 
       <div className="developer-identity-banner subsection-block">
-        <SectionLabel number="09" detail="The person behind AIBEL">My Developer Identity</SectionLabel>
+        <SectionLabel number="09" detail="The person behind POPELL">My Developer Identity</SectionLabel>
         <div className="identity-biography identity-banner-grid">
           <div>
-            <span className="eyebrow icon-label"><Terminal size={13} /> Muhamad Eldi • aka AIBEL</span>
+            <span className="eyebrow icon-label"><Terminal size={13} /> Muhamad Eldi • aka POPELL</span>
             <h3 className="identity-banner-title">Developer | Full-Stack Developer & AI Explorer</h3>
             <p className="muted identity-banner-tagline">Crafting digital experiences through code, creativity, and curiosity.</p>
           </div>

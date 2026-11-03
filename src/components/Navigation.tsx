@@ -15,11 +15,12 @@ export function Navigation() {
     window.addEventListener('keydown', close); return () => window.removeEventListener('keydown', close);
   }, [open]);
   return <header ref={ref} className={`site-nav ${open ? 'menu-open' : ''}`}>
-    <a className="wordmark" href="#hero" aria-label="Muhamad Eldi (AIBEL) — back to top" onClick={() => setOpen(false)}>AIBEL<span>Eldi</span></a>
-    <span className="nav-signature">Muhamad Eldi · aka AIBEL<span>Full-Stack Developer • Creative Technologist • AI Explorer</span></span>
+    <a className="wordmark" href="#hero" aria-label="Muhamad Eldi (POPELL) — back to top" onClick={() => setOpen(false)}>POPELL<span>Eldi</span></a>
+    <span className="nav-signature">Muhamad Eldi · aka POPELL<span>Full-Stack Developer • Creative Technologist • AI Explorer</span></span>
     <nav aria-label="Main navigation" id="main-navigation" className={open ? 'nav-links is-open' : 'nav-links'}>
       <a href="#identity" onClick={() => setOpen(false)}>About Me</a>
       <a href="#what-i-do" onClick={() => setOpen(false)}>What I Do</a>
+      <a href="#playground" onClick={() => setOpen(false)}>Creative Lab</a>
       <a href="#stack" onClick={() => setOpen(false)}>Tech Stack</a>
       <a href="#projects" onClick={() => setOpen(false)}>Projects</a>
       <a href="#experience" onClick={() => setOpen(false)}>Experience</a>

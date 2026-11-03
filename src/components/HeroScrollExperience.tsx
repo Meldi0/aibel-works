@@ -72,14 +72,14 @@ export function HeroScrollExperience({ isAudioPlaying, onToggleAudio }: { isAudi
   return <section id="hero" ref={root} className="hero">
     <div className="hero-sticky">
       <div className="hero-ambient" aria-hidden="true" />
-      <p className="hero-eyebrow"><Sparkles size={13} className="inline-icon" /> <span>MUHAMAD ELDI • aka AIBEL</span><span className="hero-eyebrow-extra"> — Full-Stack Developer • AI Explorer</span></p>
+      <p className="hero-eyebrow"><Sparkles size={13} className="inline-icon" /> <span>MUHAMAD ELDI • aka POPELL</span><span className="hero-eyebrow-extra"> — Full-Stack Developer • Creative Technologist • AI Explorer</span></p>
       <div className="hero-headline-group">
         <h1 key={active} className={`hero-headline ${WORDS[active].title.length > 7 ? 'hero-headline-long' : ''}`} aria-label={WORDS[active].title}>
           {WORDS[active].title.split('').map((letter, i) => <span className="hero-letter-mask" key={i} aria-hidden="true"><span className="hero-letter">{letter}</span></span>)}
         </h1>
         <p className="hero-subtitle">{WORDS[active].subtitle}</p>
       </div>
-      <div className="hero-scene"><Suspense fallback={null}><ThreeCanvas /></Suspense></div>
+      <div className="hero-scene"><Suspense fallback={null}><ThreeCanvas activeStage={active} /></Suspense></div>
       <div className="hero-side-note">
         <div className="hero-side-note-top">
           <span className="icon-label"><ActiveIcon size={13} /> {WORDS[active].noteTitle}</span>

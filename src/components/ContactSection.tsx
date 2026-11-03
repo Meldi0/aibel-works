@@ -427,7 +427,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
 
   return (
     <section id="contact" data-tone="light" className="contact-section section-shell">
-      <SectionLabel number="10" detail="Muhamad Eldi • AIBEL">Let’s Connect</SectionLabel>
+      <SectionLabel number="10" detail="Muhamad Eldi • POPELL">Let’s Connect</SectionLabel>
       <h2 className="display-heading contact-heading">
         <Reveal>Got an idea?</Reveal>
         <Reveal delay={0.1}>
@@ -492,7 +492,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
               <span className="eyebrow icon-label">
                 <User size={13} /> Developer Identity
               </span>
-              <p>Muhamad Eldi • aka AIBEL</p>
+              <p>Muhamad Eldi • aka POPELL</p>
               <small>Full-Stack Developer • Creative Technologist • AI Explorer</small>
             </div>
             <div>
@@ -743,7 +743,7 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
       </div>
 
       <footer className="site-footer">
-        <span>© 2026 Muhamad Eldi (aka AIBEL). Built with curiosity, creativity, and a lot of iterations.</span>
+        <span>© 2026 Muhamad Eldi (aka POPELL). Built with curiosity, creativity, and a lot of iterations.</span>
         <div className="site-footer-links">
           <a className="text-link" href={PROFILE_INFO.github} target="_blank" rel="noopener noreferrer">
             GitHub <ArrowUpRight size={14} />

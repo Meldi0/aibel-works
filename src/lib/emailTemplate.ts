@@ -29,7 +29,7 @@ export function buildModernHtmlEmail(data: EmailTemplateData): string {
   const safeTimezone = escapeHtml(stripControlChars(data.timezone || 'Asia/Jakarta', 60));
   const safeTimestamp = escapeHtml(stripControlChars(data.timestamp, 80));
   const safeMessage = escapeHtml((data.message || '').slice(0, 2000)).replace(/\n/g, '<br />');
-  const replySubject = encodeURIComponent(`Re: Pesan Anda di Portofolio Muhamad Eldi (AIBEL)`);
+  const replySubject = encodeURIComponent(`Re: Pesan Anda di Portofolio Muhamad Eldi (POPELL)`);
   const replyMailto = `mailto:${encodeURIComponent(cleanEmailRaw)}?subject=${replySubject}`;
 
   return `<!DOCTYPE html>
@@ -52,7 +52,7 @@ export function buildModernHtmlEmail(data: EmailTemplateData): string {
                 <tr>
                   <td>
                     <span style="display:inline-block;padding:5px 12px;border-radius:999px;background-color:rgba(104,135,177,0.18);border:1px solid rgba(156,183,219,0.32);color:#b9d0ee;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">
-                      AIBEL PORTFOLIO • DIRECT INBOX
+                      POPELL PORTFOLIO • DIRECT INBOX
                     </span>
                     <h1 style="margin:14px 0 6px;font-size:24px;font-weight:700;letter-spacing:-0.03em;color:#ffffff;line-height:1.25;">
                       Pesan Baru dari ${safeName}
@@ -138,7 +138,7 @@ export function buildModernHtmlEmail(data: EmailTemplateData): string {
           <!-- Footer -->
           <tr>
             <td style="background-color:#fafaf7;border-top:1px solid #eaeae5;padding:18px 34px;font-size:12px;color:#6b7280;line-height:1.6;">
-              <div>Dikirim langsung dari <strong>Portofolio Resmi Muhamad Eldi (aka AIBEL)</strong> &bull; ${escapeHtml(data.recipientEmail)}</div>
+              <div>Dikirim langsung dari <strong>Portofolio Resmi Muhamad Eldi (aka POPELL)</strong> &bull; ${escapeHtml(data.recipientEmail)}</div>
               <div style="margin-top:4px;font-size:11.5px;color:#9ca3af;">
                 GitHub: <a href="https://github.com/Meldi0" style="color:#4b5563;text-decoration:none;">Meldi0</a> &nbsp;&bull;&nbsp;
                 Instagram: <a href="https://www.instagram.com/_kubill/" style="color:#4b5563;text-decoration:none;">@_kubill</a> &nbsp;&bull;&nbsp;
@@ -193,7 +193,7 @@ export const GOOGLE_APPS_SCRIPT_SNIPPET = `function doPost(e) {
   var htmlBody = "<div style='background:#f4f4f0;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#161719;'>"
     + "<div style='max-width:600px;margin:0 auto;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e4e4df;'>"
     + "<div style='background:#0d0f14;padding:28px 32px;color:#ffffff;'>"
-    + "<div style='display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(104,135,177,0.2);color:#b9d0ee;font-size:11px;font-weight:600;letter-spacing:0.08em;'>AIBEL PORTFOLIO • DIRECT INBOX</div>"
+    + "<div style='display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(104,135,177,0.2);color:#b9d0ee;font-size:11px;font-weight:600;letter-spacing:0.08em;'>POPELL PORTFOLIO • DIRECT INBOX</div>"
     + "<h2 style='margin:14px 0 6px;font-size:22px;color:#ffffff;'>Pesan Baru dari " + safeName + "</h2>"
     + "<div style='font-size:12px;color:#9ca3af;'>Diterima pada " + safeTime + "</div></div>"
     + "<div style='padding:24px 32px;'>"
@@ -212,7 +212,7 @@ export const GOOGLE_APPS_SCRIPT_SNIPPET = `function doPost(e) {
     subject: "Pesan Portofolio dari " + safeName + " (" + safeEmail + ") — " + safeLoc,
     htmlBody: htmlBody,
     replyTo: rawEmail,
-    name: safeName + " (via Portofolio AIBEL)"
+    name: safeName + " (via Portofolio POPELL)"
   });
   return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
 }`;

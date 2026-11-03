@@ -6,11 +6,22 @@ import { HeroScrollExperience } from './components/HeroScrollExperience';
 import { Navigation } from './components/Navigation';
 import { IdentitySection } from './components/IdentitySection';
 import { MetricsSection } from './components/MetricsSection';
+import { CreativePlaygroundSection } from './components/CreativePlaygroundSection';
 import { ProjectsSection } from './components/ProjectsSection';
 import { ConstellationSection } from './components/ConstellationSection';
 import { ContactSection } from './components/ContactSection';
 import { SoundAmbience } from './components/SoundAmbience';
 import { SplashScreen } from './components/SplashScreen';
+import { CustomCursor } from './components/CustomCursor';
+
+const MARQUEE_ITEMS = [
+  'MUHAMAD ELDI • AKA POPELL',
+  'CREATIVE TECHNOLOGIST',
+  'FULL-STACK WEB & AI ENGINEER',
+  'INTERACTIVE 3D & KINETIC INTERFACES',
+  'PT POS INDONESIA • OPERATIONS CONTROL',
+  'SMK SOFTWARE ENGINEERING (RPL)',
+];
 
 export default function App() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -82,13 +93,27 @@ export default function App() {
   }, [reduced]);
   return <MotionConfig reducedMotion="user" transition={{ duration: .9, ease: [.16, 1, .3, 1] }}>
     {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
+    <CustomCursor />
     <div ref={root} className="portfolio">
       <div className="scroll-progress-track" aria-hidden="true"><div ref={progressRef} className="scroll-progress-bar" /></div>
       <a className="skip-link" href="#identity">Skip to content</a>
       <Navigation />
       <main id="main-content">
         <HeroScrollExperience isAudioPlaying={isAudioPlaying} onToggleAudio={() => setIsAudioPlaying(v => !v)} />
-        <IdentitySection /><MetricsSection /><ConstellationSection /><ProjectsSection />
+        <div className="kinetic-marquee-strip" aria-hidden="true">
+          <div className="kinetic-marquee-track">
+            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
+              <span key={idx} className="kinetic-marquee-item">
+                {item} <i className="marquee-dot">✦</i>
+              </span>
+            ))}
+          </div>
+        </div>
+        <IdentitySection />
+        <MetricsSection />
+        <CreativePlaygroundSection />
+        <ConstellationSection />
+        <ProjectsSection />
         <ContactSection onBackToTop={() => { location.hash = 'hero'; }} />
       </main>
       <SoundAmbience isPlaying={isAudioPlaying} onToggle={() => setIsAudioPlaying(v => !v)} />

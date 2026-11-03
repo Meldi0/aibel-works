@@ -254,8 +254,8 @@ export function IdentitySection() {
     <section ref={root} id="identity" data-tone="dark" className="identity-section">
       <div className="identity-reel">
         <div className="identity-sticky section-shell">
-          <SectionLabel number="01" detail="Muhamad Eldi • aka AIBEL">About Me</SectionLabel>
-          <span className="identity-depth-type" aria-hidden="true">AIBEL</span>
+          <SectionLabel number="01" detail="Muhamad Eldi • aka POPELL">About Me</SectionLabel>
+          <span className="identity-depth-type" aria-hidden="true">POPELL</span>
           <div className="identity-grid">
             <figure className="portrait-parallax">
               <div
@@ -266,7 +266,7 @@ export function IdentitySection() {
                 <img
                   className="portrait-image portrait-base"
                   src={PROFILE_INFO.portraitImage}
-                  alt="Muhamad Eldi (aka AIBEL) — Full-Stack Developer • Creative Technologist • AI Explorer"
+                  alt="Muhamad Eldi (aka POPELL) — Full-Stack Developer • Creative Technologist • AI Explorer"
                   width="800"
                   height="600"
                   loading="eager"
@@ -281,17 +281,17 @@ export function IdentitySection() {
                 />
                 <div className="portrait-light" aria-hidden="true" />
                 <figcaption className="portrait-caption">
-                  <span>Muhamad Eldi · aka AIBEL</span>
+                  <span>Muhamad Eldi · aka POPELL</span>
                   <span>Bandung, ID · 2026</span>
                 </figcaption>
               </div>
               <div className="portrait-meta">
                 <span>Full-Stack Developer • Creative Technologist • AI Explorer</span>
-                <span>Crafting digital experiences</span>
+                <span>Hover / Tap Portrait to Reveal Creative Persona</span>
               </div>
             </figure>
             <div className="identity-intro">
-              <p className="eyebrow"><Reveal><span className="icon-label"><Terminal size={13} /> Hey, I’m Eldi! • aka AIBEL</span></Reveal></p>
+              <p className="eyebrow"><Reveal><span className="icon-label"><Terminal size={13} /> Hey, I’m Eldi! • aka POPELL</span></Reveal></p>
               <h2 className="display-heading identity-heading"><Reveal>Not your</Reveal><Reveal delay={0.08}>typical</Reveal><Reveal delay={0.16}><span className="muted">“Hello World”.</span></Reveal></h2>
               <p className="identity-lead"><Reveal delay={0.2}>I’m a student developer who loves turning ideas into real digital experiences.</Reveal><Reveal delay={0.28}>I enjoy building things, experimenting with technologies, and figuring out how to make something not just work, but actually feel good to use.</Reveal></p>
             </div>
@@ -302,7 +302,7 @@ export function IdentitySection() {
         <div className="identity-biography">
           <p className="eyebrow"><Reveal>01 / About Me — Behind the scenes</Reveal></p>
           <div className="identity-narrative">
-            <p className="identity-narrative-lead"><Reveal>Gue Muhamad Eldi, also known as AIBEL, seorang student developer yang suka banget ngulik teknologi, experimenting with ideas, dan membangun sesuatu dari nol.</Reveal></p>
+            <p className="identity-narrative-lead"><Reveal>Gue Muhamad Eldi, also known as POPELL, seorang student developer yang suka banget ngulik teknologi, experimenting with ideas, dan membangun sesuatu dari nol.</Reveal></p>
             <p className="identity-narrative-body">
               My journey in programming is driven by curiosity. Gue nggak mau cuma tahu cara menggunakan teknologi, tapi juga pengen ngerti gimana semuanya bekerja behind the scenes — mulai dari frontend development, backend architecture, database systems, hingga AI integration.
             </p>
@@ -324,7 +324,7 @@ export function IdentitySection() {
           </div>
         </div>
         <div className="identity-facts">
-          <div><span className="eyebrow icon-label"><User size={13} /> Developer Identity</span><h3>Muhamad Eldi (AIBEL)</h3><p>Full-Stack Developer • Creative Technologist • AI Explorer</p><p className="muted">Crafting digital experiences through code, creativity, and curiosity.</p></div>
+          <div><span className="eyebrow icon-label"><User size={13} /> Developer Identity</span><h3>Muhamad Eldi (POPELL)</h3><p>Full-Stack Developer • Creative Technologist • AI Explorer</p><p className="muted">Crafting digital experiences through code, creativity, and curiosity.</p></div>
           <div><span className="eyebrow icon-label"><Sparkles size={13} /> Education & Background</span><h3>Software Engineering (RPL)</h3><p>Vocational High School (SMK) in Software Engineering (Rekayasa Perangkat Lunak) — building web, backend, and AI systems from the ground up.</p></div>
           <div><span className="eyebrow icon-label"><Code2 size={13} /> Industry Experience (PKL)</span><h3>PT Pos Indonesia</h3><p>Operations Control Division (Pengendalian Operasi) — developing operational dashboards, local AI shipment agents, and enterprise data tools.</p></div>
           <div><span className="eyebrow icon-label"><Compass size={13} /> Core Philosophy</span><h3>Always Evolving</h3><p>I believe being versatile is valuable, but understanding the technologies I use is even more important. Not here to know everything. Here to keep figuring things out.</p></div>

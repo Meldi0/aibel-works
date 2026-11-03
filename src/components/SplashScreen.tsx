@@ -66,7 +66,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             className="splash-clean-center"
           >
             <span className="splash-clean-name">Muhamad Eldi</span>
-            <span className="splash-clean-sub">aka AIBEL</span>
+            <span className="splash-clean-sub">aka POPELL · Creative Technologist</span>
 
             <div className="splash-clean-bar-wrap" aria-hidden="true">
               <div className="splash-clean-bar-track">

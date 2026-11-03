@@ -7,6 +7,7 @@ export const CustomCursor: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isClicking, setIsClicking] = useState<boolean>(false);
+  const [cursorLabel, setCursorLabel] = useState<string>('');
 
   useEffect(() => {
     const isTouchOrSmall =
@@ -47,6 +48,30 @@ export const CustomCursor: React.FC = () => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
+      const cardEl = target.closest<HTMLElement>('.what-i-do-card, .experience-card');
+      if (cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        cardEl.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+        cardEl.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+      }
+
+      if (target.closest('.portrait-mask')) {
+        setCursorLabel('REVEAL');
+        setIsHovered(true);
+        return;
+      }
+      if (target.closest('.project-visual')) {
+        setCursorLabel('VIEW CASE');
+        setIsHovered(true);
+        return;
+      }
+      if (target.closest('.playground-particle-canvas')) {
+        setCursorLabel('PULSE');
+        setIsHovered(true);
+        return;
+      }
+
+      setCursorLabel('');
       const isInteractive =
         target.tagName === 'A' ||
         target.tagName === 'BUTTON' ||
@@ -76,8 +101,8 @@ export const CustomCursor: React.FC = () => {
       dotX += (mouseX - dotX) * 0.55;
       dotY += (mouseY - dotY) * 0.55;
 
-      ringX += (mouseX - ringX) * 0.24;
-      ringY += (mouseY - ringY) * 0.24;
+      ringX += (mouseX - ringX) * 0.22;
+      ringY += (mouseY - ringY) * 0.22;
 
       if (cursorDotRef.current) {
         cursorDotRef.current.style.transform = `translate3d(${dotX}px, ${dotY}px, 0) translate(-50%, -50%)`;
@@ -103,37 +128,18 @@ export const CustomCursor: React.FC = () => {
     <>
       <div
         ref={cursorRingRef}
-        id="custom-spatial-cursor-ring"
-        className={`custom-cursor-layer fixed top-0 left-0 pointer-events-none z-99 mix-blend-difference transition-opacity duration-300 ${
-          isVisible ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{ willChange: 'transform' }}
+        className={`custom-cursor-layer spatial-cursor-ring ${isVisible ? 'is-visible' : ''} ${
+          isHovered ? 'is-hovered' : ''
+        } ${isClicking ? 'is-clicking' : ''} ${cursorLabel ? 'has-label' : ''}`}
       >
-        <div
-          className={`rounded-full border border-[#f5f4f0] transition-all duration-300 ease-out ${
-            isHovered
-              ? 'w-11 h-11 bg-[#f5f4f0]/15 border-[#f5f4f0] scale-110'
-              : isClicking
-              ? 'w-6 h-6 border-[#f5f4f0] bg-[#f5f4f0]/25 scale-90'
-              : 'w-7 h-7 opacity-60'
-          }`}
-        />
+        {cursorLabel && <span className="spatial-cursor-text">{cursorLabel}</span>}
       </div>
-
       <div
         ref={cursorDotRef}
-        id="custom-spatial-cursor-dot"
-        className={`custom-cursor-layer fixed top-0 left-0 pointer-events-none z-100 mix-blend-difference transition-opacity duration-200 ${
-          isVisible ? 'opacity-100' : 'opacity-0'
+        className={`custom-cursor-layer spatial-cursor-dot ${isVisible ? 'is-visible' : ''} ${
+          isHovered ? 'is-hovered' : ''
         }`}
-        style={{ willChange: 'transform' }}
-      >
-        <div
-          className={`rounded-full bg-[#f5f4f0] transition-all duration-200 ${
-            isClicking ? 'w-2.5 h-2.5 scale-125' : isHovered ? 'w-1.5 h-1.5' : 'w-2 h-2'
-          }`}
-        />
-      </div>
+      />
     </>
   );
 };

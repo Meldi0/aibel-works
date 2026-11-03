@@ -371,7 +371,7 @@ export const TECH_CONSTELLATION: TechNode[] = [
 ];
 
 export const PROFILE_INFO = {
-  name: 'Muhamad Eldi (aka AIBEL)',
+  name: 'Muhamad Eldi (aka POPELL)',
   title: 'Full-Stack Developer • Creative Technologist • AI Explorer',
   role: 'PT Graha Pos Indonesia — Intern 2026',
   location: 'Bandung, West Java, Indonesia',
