@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowDown, Code2, Cpu, Layers, Sparkles, Terminal, Volume2, VolumeX } from 'lucide-react';
 import { gsap, ScrollTrigger, useMotionSettings } from '../lib/motion';
 import { Magnetic } from './Magnetic';
@@ -8,7 +8,7 @@ const ThreeCanvas = lazy(() => import('./ThreeCanvas').then(module => ({ default
 const WORDS = [
   {
     title: 'INSIGHT',
-    kicker: 'Hey, I’m Muhamad Eldi — aka POPELL',
+    kicker: '01 // HEY, I’M MUHAMAD ELDI — AKA POPELL',
     subtitle: 'Full-Stack Developer • Creative Technologist • AI Explorer',
     noteTitle: '01 — Hey, I’m Eldi!',
     noteSub: 'Turning ideas into real digital experiences.',
@@ -18,7 +18,7 @@ const WORDS = [
   },
   {
     title: 'INSPIRE',
-    kicker: 'Where Engineering Meets Visual Art',
+    kicker: '02 // WHERE ENGINEERING MEETS VISUAL ART',
     subtitle: 'Crafting digital experiences through code, creativity, and curiosity',
     noteTitle: '02 — Creative Web',
     noteSub: 'Not just work, but feel good to use.',
@@ -28,7 +28,7 @@ const WORDS = [
   },
   {
     title: 'ARCHITECT',
-    kicker: 'Structured Full-Stack & Database Systems',
+    kicker: '03 // STRUCTURED FULL-STACK & DATABASE SYSTEMS',
     subtitle: 'JavaScript, TypeScript, PHP, Laravel, React, Node.js, Python, MySQL & MongoDB',
     noteTitle: '03 — Full-Stack & Data',
     noteSub: 'Web apps, backend systems & data dashboards.',
@@ -38,7 +38,7 @@ const WORDS = [
   },
   {
     title: 'RESILIENT',
-    kicker: 'Local AI Agents & Intelligent Workflows',
+    kicker: '04 // LOCAL AI AGENTS & INTELLIGENT WORKFLOWS',
     subtitle: 'AI Agents, Local LLMs with Ollama & Data-Driven Applications',
     noteTitle: '04 — AI & Automation',
     noteSub: '“What if I could make this?”',
@@ -48,7 +48,7 @@ const WORDS = [
   },
   {
     title: 'SCALING',
-    kicker: 'Real-World Industry Experience (PKL)',
+    kicker: '05 // REAL-WORLD INDUSTRY EXPERIENCE (PKL)',
     subtitle: 'Keep learning. Keep building. Keep improving.',
     noteTitle: '05 — Operations Control',
     noteSub: 'PT Pos Indonesia · Pengendalian Operasi.',
@@ -57,8 +57,6 @@ const WORDS = [
     orbitRight: { label: 'DATA TELEMETRY', value: 'iPOS5 & Control Tower', sub: 'Regional Performance Analytics' },
   },
 ];
-
-const CIPHER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/';
 
 export function HeroScrollExperience({
   isAudioPlaying,
@@ -69,38 +67,11 @@ export function HeroScrollExperience({
 }) {
   const root = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
-  const [scrambledKicker, setScrambledKicker] = useState(WORDS[0].kicker);
-  const { reduced, desktop } = useMotionSettings();
-
-  // Subtle creative cipher decode effect on the stage kicker whenever active stage changes
-  useEffect(() => {
-    const targetText = WORDS[active].kicker;
-    if (reduced) {
-      setScrambledKicker(targetText);
-      return;
-    }
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setScrambledKicker(
-        targetText
-          .split('')
-          .map((char, idx) => {
-            if (char === ' ' || char === '—' || char === '•') return char;
-            if (idx < iteration) return targetText[idx];
-            return CIPHER_CHARS[(idx + Math.floor(iteration * 3)) % CIPHER_CHARS.length];
-          })
-          .join('')
-      );
-      iteration += 1.4;
-      if (iteration >= targetText.length) {
-        setScrambledKicker(targetText);
-        clearInterval(interval);
-      }
-    }, 24);
-    return () => clearInterval(interval);
-  }, [active, reduced]);
+  const lockUntilRef = useRef(0);
+  const { reduced } = useMotionSettings();
 
   const selectWord = (index: number) => {
+    lockUntilRef.current = performance.now() + 750;
     setActive(index);
     if (!root.current) return;
     const stickyDistance = root.current.offsetHeight - window.innerHeight;
@@ -114,44 +85,30 @@ export function HeroScrollExperience({
     const context = gsap.context(() => {
       gsap.fromTo(
         '.hero-letter',
-        {
-          yPercent: 120,
-          rotateX: desktop && !reduced ? -72 : 0,
-          scale: 0.86,
-          opacity: 0,
-          filter: desktop && !reduced ? 'blur(9px)' : 'none',
-        },
+        { yPercent: 112, opacity: 0 },
         {
           yPercent: 0,
-          rotateX: 0,
-          scale: 1,
           opacity: 1,
-          filter: 'blur(0px)',
-          stagger: 0.042,
-          duration: 1.02,
+          stagger: 0.032,
+          duration: 0.78,
           ease: 'premium',
-          clearProps: 'filter',
         }
       );
       gsap.fromTo(
-        '.hero-sub-word',
-        { y: 14, opacity: 0, filter: desktop && !reduced ? 'blur(4px)' : 'none' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', stagger: 0.028, duration: 0.68, ease: 'premium', clearProps: 'filter' }
-      );
-      gsap.fromTo(
-        '.hero-side-note, .hero-orbit-card',
-        { y: 16, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, stagger: 0.08, duration: 0.72, ease: 'premium' }
+        '.hero-script-kicker, .hero-subtitle, .hero-side-note, .hero-orbit-card',
+        { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.04, duration: 0.58, ease: 'premium' }
       );
     }, root);
     return () => context.revert();
-  }, [active, reduced, desktop]);
+  }, [active]);
 
   useLayoutEffect(() => {
     const context = gsap.context(() => {
       const updateActiveWord = (progress: number) => {
+        if (performance.now() < lockUntilRef.current) return;
         const clamped = Math.max(0, Math.min(1, progress));
-        const index = Math.min(WORDS.length - 1, Math.round(clamped * (WORDS.length - 1)));
+        const index = Math.min(WORDS.length - 1, Math.floor(clamped * WORDS.length * 0.999));
         setActive(prev => (prev !== index ? index : prev));
       };
 
@@ -159,20 +116,12 @@ export function HeroScrollExperience({
         trigger: root.current,
         start: 'top top',
         end: 'bottom bottom',
-        snap: desktop
-          ? {
-              snapTo: 1 / (WORDS.length - 1),
-              duration: { min: 0.2, max: 0.45 },
-              delay: 0.05,
-              ease: 'power2.out',
-            }
-          : undefined,
         onUpdate: self => updateActiveWord(self.progress),
         onRefresh: self => updateActiveWord(self.progress),
       });
     }, root);
     return () => context.revert();
-  }, [reduced, desktop]);
+  }, []);
 
   const currentStage = WORDS[active];
   const ActiveIcon = currentStage.Icon;
@@ -186,7 +135,7 @@ export function HeroScrollExperience({
           <span className="hero-eyebrow-extra"> — Full-Stack Developer • Creative Technologist • AI Explorer</span>
         </p>
 
-        {/* Floating Orbital Context Cards (Desktop & Tablet) showing Eldi's real work per stage */}
+        {/* Floating Orbital Context Cards showing Eldi's real work per stage */}
         <div className="hero-orbit-layer" aria-hidden="true">
           <div className="hero-orbit-card hero-orbit-left">
             <span className="orbit-card-tag">
@@ -205,7 +154,7 @@ export function HeroScrollExperience({
         </div>
 
         <div className="hero-headline-group">
-          <span className="hero-script-kicker">{scrambledKicker}</span>
+          <span className="hero-script-kicker">{currentStage.kicker}</span>
           <h1
             key={active}
             className={`hero-headline ${currentStage.title.length > 7 ? 'hero-headline-long' : ''}`}
@@ -217,19 +166,12 @@ export function HeroScrollExperience({
               </span>
             ))}
           </h1>
-          <p key={`sub-${active}`} className="hero-subtitle">
-            {currentStage.subtitle.split(' ').map((word, idx, arr) => (
-              <span key={idx} className="hero-sub-word">
-                {word}
-                {idx < arr.length - 1 ? '\u00A0' : ''}
-              </span>
-            ))}
-          </p>
+          <p className="hero-subtitle">{currentStage.subtitle}</p>
         </div>
 
         <div className="hero-scene">
           <Suspense fallback={null}>
-            <ThreeCanvas activeStage={active} />
+            <ThreeCanvas />
           </Suspense>
         </div>
 
