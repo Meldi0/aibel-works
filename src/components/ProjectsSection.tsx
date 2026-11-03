@@ -4,7 +4,7 @@ import { ArrowUpRight, BarChart3, BookOpen, Bot, Briefcase, CheckCircle2, Code2,
 import { PROJECTS_DATA } from '../data/portfolioData';
 import type { ProjectItem } from '../types';
 import { ProjectModal } from './ProjectModal';
-import { Reveal, SectionLabel } from './Reveal';
+import { Reveal, SectionLabel, StaggerCard } from './Reveal';
 import { EASE } from '../lib/motion';
 
 const HOW_I_THINK = [
@@ -199,10 +199,10 @@ export function ProjectsSection() {
       <SectionLabel number="04" detail="Things I've been building">Featured Projects</SectionLabel>
       <div className="section-heading-row"><h2 className="display-heading"><Reveal>Project</Reveal><Reveal delay={.08}><span className="muted">archive.</span></Reveal></h2><p><Reveal>A collection of personal projects, real-world applications, creative experiments, and systems I’ve worked on throughout my development journey.</Reveal></p></div>
       <LayoutGroup id="project-archive">
-        <div className="project-list">{PROJECTS_DATA.map(project => <article className="project" key={project.id}>
+        <div className="project-list">{PROJECTS_DATA.map((project, idx) => <StaggerCard className="project" key={project.id} index={idx}>
           <div className="project-info"><span className="eyebrow"><Reveal>{project.number} / {project.year}</Reveal></span>
-            <motion.h3 layoutId={reduced ? undefined : `title-${project.id}`}><button className="project-title-button" onClick={() => setSelected(project)}>{project.title}</button></motion.h3>
-            <p className="project-subtitle">{project.subtitle}</p><p className="project-description"><Reveal>{project.description}</Reveal></p>
+            <motion.h3 layoutId={reduced ? undefined : `title-${project.id}`}><button className="project-title-button" onClick={() => setSelected(project)}><Reveal delay={0.04}>{project.title}</Reveal></button></motion.h3>
+            <p className="project-subtitle">{project.subtitle}</p><p className="project-description"><Reveal delay={0.08}>{project.description}</Reveal></p>
             <p className="project-role">{project.role}</p>
             <div className="tech-tags">{project.technologies.map(tech => <span key={tech}>{tech}</span>)}</div>
             <div className="project-bottom"><span>{project.metrics}</span><button className="text-link" onClick={() => setSelected(project)} aria-label={`Explore case study: ${project.title}`}>Case study <ArrowUpRight size={17} /></button></div>
@@ -211,7 +211,7 @@ export function ProjectsSection() {
             <img src={project.image} alt={project.title} width="1280" height="720" loading="lazy" decoding="async" />
             <span className="project-highlight" aria-hidden="true" /><span className="project-image-index">{project.number} — {project.year}</span><span className="project-open-icon" aria-hidden="true"><ArrowUpRight size={23} /></span>
           </motion.button>
-        </article>)}</div>
+        </StaggerCard>)}</div>
         <AnimatePresence>{selected && <ProjectModal key={selected.id} project={selected} onClose={close} />}</AnimatePresence>
       </LayoutGroup>
 
@@ -219,25 +219,26 @@ export function ProjectsSection() {
         <div className="lab-explorations-header">
           <div>
             <span className="eyebrow icon-label"><Sparkles size={13} /> R&D Lab & Ongoing Explorations</span>
-            <h3>Additional AI, Creative & Data Projects</h3>
+            <h3><Reveal>Additional AI, Creative & Data Projects</Reveal></h3>
           </div>
-          <p className="muted">Some are ongoing developments, and some are experiments where I’m exploring what’s possible.</p>
+          <p className="muted"><Reveal delay={0.06}>Some are ongoing developments, and some are experiments where I’m exploring what’s possible.</Reveal></p>
         </div>
         <div className="what-i-do-grid">
-          {LAB_EXPLORATIONS.map(item => {
+          {LAB_EXPLORATIONS.map((item, idx) => {
             const Icon = item.Icon;
             const isExpanded = !!expandedLabs[item.code];
             return (
-              <article
+              <StaggerCard
                 className={`metric what-i-do-card lab-card ${isExpanded ? 'is-expanded' : ''}`}
                 key={item.code}
+                index={idx}
                 onClick={() => toggleLab(item.code)}
               >
                 <div className="card-top-meta">
                   <span className="card-icon-badge"><Icon size={16} /></span>
                   <span className="eyebrow">{item.code} · {item.status}</span>
                 </div>
-                <h4 className="what-i-do-title">{item.title}</h4>
+                <h4 className="what-i-do-title"><Reveal>{item.title}</Reveal></h4>
                 <p className="metric-sublabel">{item.category}</p>
                 <p className="lab-tagline">“{item.tagline}”</p>
                 <p className="metric-detail lab-description">{item.description}</p>
@@ -247,7 +248,7 @@ export function ProjectsSection() {
                 <div className="tech-tags" style={{ marginTop: '14px' }}>
                   {item.stack.map(tech => <span key={tech}>{tech}</span>)}
                 </div>
-              </article>
+              </StaggerCard>
             );
           })}
         </div>
@@ -288,16 +289,16 @@ export function ProjectsSection() {
           {HOW_I_THINK.map((item, i) => {
             const Icon = item.Icon;
             return (
-              <article className="metric what-i-do-card" key={item.number}>
+              <StaggerCard className="metric what-i-do-card" key={item.number} index={i}>
                 <div className="card-top-meta">
                   <span className="card-icon-badge"><Icon size={16} /></span>
                   <span className="eyebrow">{item.number} / Principle</span>
                 </div>
-                <h3 className="what-i-do-title"><Reveal delay={i * .05}>{item.title}</Reveal></h3>
+                <h3 className="what-i-do-title"><Reveal delay={i * .04}>{item.title}</Reveal></h3>
                 {item.paragraphs.map((p, idx) => (
-                  <p className="metric-detail" key={idx}>{p}</p>
+                  <p className="metric-detail" key={idx}><Reveal delay={i * .04 + idx * .03}>{p}</Reveal></p>
                 ))}
-              </article>
+              </StaggerCard>
             );
           })}
         </div>

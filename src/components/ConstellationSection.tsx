@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Compass, Layers, Sparkles } from 'lucide-react';
 import { TECH_LIST, CATEGORIES } from '../data/techData';
-import { Reveal, SectionLabel } from './Reveal';
+import { Reveal, SectionLabel, StaggerCard } from './Reveal';
 import { EASE } from '../lib/motion';
 
 export function ConstellationSection() {
@@ -33,9 +33,9 @@ export function ConstellationSection() {
       </aside>
     </div>
     <div className="architecture-pillars">
-      <article><p className="eyebrow icon-label"><Layers size={13} /> Perspective</p><h3><Reveal>Hands-on & Evolving</Reveal></h3><p>I don’t claim to have mastered every technology on this list. Some are part of my hands-on projects, while others are technologies I’m actively learning and experimenting with.</p></article>
-      <article><p className="eyebrow icon-label"><Compass size={13} /> Developer Mindset</p><h3><Reveal>Learn, Adapt, Solve</Reveal></h3><p>For me, being a developer isn’t about knowing every framework. It’s about knowing how to learn, adapt, and solve problems.</p></article>
-      <article><p className="eyebrow icon-label"><Sparkles size={13} /> Versatility</p><h3><Reveal>Code, Creativity & Curiosity</Reveal></h3><p>Whether working on structured PHP & Laravel backends, React interfaces, databases, or local AI Agents with Ollama, understanding how things work matters most.</p></article>
+      <StaggerCard index={0}><p className="eyebrow icon-label"><Layers size={13} /> Perspective</p><h3><Reveal>Hands-on & Evolving</Reveal></h3><p><Reveal delay={0.05}>I don’t claim to have mastered every technology on this list. Some are part of my hands-on projects, while others are technologies I’m actively learning and experimenting with.</Reveal></p></StaggerCard>
+      <StaggerCard index={1}><p className="eyebrow icon-label"><Compass size={13} /> Developer Mindset</p><h3><Reveal>Learn, Adapt, Solve</Reveal></h3><p><Reveal delay={0.05}>For me, being a developer isn’t about knowing every framework. It’s about knowing how to learn, adapt, and solve problems.</Reveal></p></StaggerCard>
+      <StaggerCard index={2}><p className="eyebrow icon-label"><Sparkles size={13} /> Versatility</p><h3><Reveal>Code, Creativity & Curiosity</Reveal></h3><p><Reveal delay={0.05}>Whether working on structured PHP & Laravel backends, React interfaces, databases, or local AI Agents with Ollama, understanding how things work matters most.</Reveal></p></StaggerCard>
     </div>
   </section>;
 }

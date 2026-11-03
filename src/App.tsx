@@ -6,7 +6,6 @@ import { HeroScrollExperience } from './components/HeroScrollExperience';
 import { Navigation } from './components/Navigation';
 import { IdentitySection } from './components/IdentitySection';
 import { MetricsSection } from './components/MetricsSection';
-import { CreativePlaygroundSection } from './components/CreativePlaygroundSection';
 import { ProjectsSection } from './components/ProjectsSection';
 import { ConstellationSection } from './components/ConstellationSection';
 import { ContactSection } from './components/ContactSection';
@@ -111,7 +110,6 @@ export default function App() {
         </div>
         <IdentitySection />
         <MetricsSection />
-        <CreativePlaygroundSection />
         <ConstellationSection />
         <ProjectsSection />
         <ContactSection onBackToTop={() => { location.hash = 'hero'; }} />

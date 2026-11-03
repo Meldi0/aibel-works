@@ -20,7 +20,6 @@ export function Navigation() {
     <nav aria-label="Main navigation" id="main-navigation" className={open ? 'nav-links is-open' : 'nav-links'}>
       <a href="#identity" onClick={() => setOpen(false)}>About Me</a>
       <a href="#what-i-do" onClick={() => setOpen(false)}>What I Do</a>
-      <a href="#playground" onClick={() => setOpen(false)}>Creative Lab</a>
       <a href="#stack" onClick={() => setOpen(false)}>Tech Stack</a>
       <a href="#projects" onClick={() => setOpen(false)}>Projects</a>
       <a href="#experience" onClick={() => setOpen(false)}>Experience</a>

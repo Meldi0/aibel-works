@@ -1,5 +1,5 @@
 import { Bot, Database, Layout, Palette, Server } from 'lucide-react';
-import { Reveal, SectionLabel } from './Reveal';
+import { Reveal, SectionLabel, StaggerCard } from './Reveal';
 
 const WHAT_I_DO = [
   {
@@ -71,17 +71,17 @@ export function MetricsSection() {
         {WHAT_I_DO.map((item, i) => {
           const Icon = item.Icon;
           return (
-            <article className="metric what-i-do-card" key={item.number}>
+            <StaggerCard className="metric what-i-do-card" key={item.number} index={i}>
               <div className="card-top-meta">
                 <span className="card-icon-badge"><Icon size={16} /></span>
                 <span className="eyebrow">{item.number} / Discipline</span>
               </div>
-              <h3 className="what-i-do-title"><Reveal delay={i * .05}>{item.title}</Reveal></h3>
+              <h3 className="what-i-do-title"><Reveal delay={i * .04}>{item.title}</Reveal></h3>
               <p className="metric-sublabel">{item.subtitle}</p>
               {item.paragraphs.map((p, idx) => (
-                <p className="metric-detail" key={idx}><Reveal delay={i * .05 + idx * .03}>{p}</Reveal></p>
+                <p className="metric-detail" key={idx}><Reveal delay={i * .04 + idx * .03}>{p}</Reveal></p>
               ))}
-            </article>
+            </StaggerCard>
           );
         })}
       </div>

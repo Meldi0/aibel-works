@@ -29,13 +29,34 @@ export function HeroScrollExperience({ isAudioPlaying, onToggleAudio }: { isAudi
     const context = gsap.context(() => {
       gsap.fromTo(
         '.hero-letter',
-        { yPercent: 115, opacity: 0, filter: desktop && !reduced ? 'blur(7px)' : 'none' },
-        { yPercent: 0, opacity: 1, filter: 'blur(0px)', stagger: .035, duration: .95, ease: 'premium', clearProps: 'filter' }
+        {
+          yPercent: 120,
+          rotateX: desktop && !reduced ? -72 : 0,
+          scale: 0.86,
+          opacity: 0,
+          filter: desktop && !reduced ? 'blur(9px)' : 'none',
+        },
+        {
+          yPercent: 0,
+          rotateX: 0,
+          scale: 1,
+          opacity: 1,
+          filter: 'blur(0px)',
+          stagger: 0.042,
+          duration: 1.02,
+          ease: 'premium',
+          clearProps: 'filter',
+        }
       );
       gsap.fromTo(
-        '.hero-subtitle, .hero-side-note',
-        { y: 10, opacity: 0 },
-        { y: 0, opacity: 1, duration: .65, ease: 'premium' }
+        '.hero-sub-word',
+        { y: 14, opacity: 0, filter: desktop && !reduced ? 'blur(4px)' : 'none' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', stagger: 0.028, duration: 0.68, ease: 'premium', clearProps: 'filter' }
+      );
+      gsap.fromTo(
+        '.hero-side-note',
+        { y: 12, opacity: 0, scale: 0.98 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.65, ease: 'premium' }
       );
     }, root);
     return () => context.revert();
@@ -77,7 +98,13 @@ export function HeroScrollExperience({ isAudioPlaying, onToggleAudio }: { isAudi
         <h1 key={active} className={`hero-headline ${WORDS[active].title.length > 7 ? 'hero-headline-long' : ''}`} aria-label={WORDS[active].title}>
           {WORDS[active].title.split('').map((letter, i) => <span className="hero-letter-mask" key={i} aria-hidden="true"><span className="hero-letter">{letter}</span></span>)}
         </h1>
-        <p className="hero-subtitle">{WORDS[active].subtitle}</p>
+        <p key={`sub-${active}`} className="hero-subtitle">
+          {WORDS[active].subtitle.split(' ').map((word, idx, arr) => (
+            <span key={idx} className="hero-sub-word">
+              {word}{idx < arr.length - 1 ? '\u00A0' : ''}
+            </span>
+          ))}
+        </p>
       </div>
       <div className="hero-scene"><Suspense fallback={null}><ThreeCanvas activeStage={active} /></Suspense></div>
       <div className="hero-side-note">

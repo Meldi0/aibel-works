@@ -453,41 +453,9 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
             <p className="availability icon-label">
               <Sparkles size={14} /> <em>Still learning. Still shipping. Still curious.</em>
             </p>
-            <div className="social-pills-row" aria-label="Social Media Links">
-              <a
-                className="social-pill"
-                href={PROFILE_INFO.github}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Code2 size={14} />
-                <span>GitHub</span>
-                <ArrowUpRight size={13} />
-              </a>
-              <a
-                className="social-pill"
-                href={PROFILE_INFO.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram size={14} />
-                <span>{PROFILE_INFO.instagramHandle}</span>
-                <ArrowUpRight size={13} />
-              </a>
-              <a
-                className="social-pill"
-                href={PROFILE_INFO.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <TikTokIcon size={14} />
-                <span>{PROFILE_INFO.tiktokHandle}</span>
-                <ArrowUpRight size={13} />
-              </a>
-            </div>
           </div>
 
-          <div className="contact-details" style={{ marginTop: '36px' }}>
+          <div className="contact-details" style={{ marginTop: '32px' }}>
             <div>
               <span className="eyebrow icon-label">
                 <User size={13} /> Developer Identity
@@ -520,27 +488,40 @@ export function ContactSection({ onBackToTop }: { onBackToTop: () => void }) {
             </div>
             <div>
               <span className="eyebrow icon-label">
-                <Code2 size={13} /> GitHub Repository
+                <Code2 size={13} /> Social &amp; Code Channels
               </span>
-              <a className="text-link" href={PROFILE_INFO.github} target="_blank" rel="noopener noreferrer">
-                github.com/Meldi0 <ArrowUpRight size={17} />
-              </a>
-            </div>
-            <div>
-              <span className="eyebrow icon-label">
-                <Instagram size={13} /> Instagram
-              </span>
-              <a className="text-link" href={PROFILE_INFO.instagram} target="_blank" rel="noopener noreferrer">
-                instagram.com/_kubill ({PROFILE_INFO.instagramHandle}) <ArrowUpRight size={17} />
-              </a>
-            </div>
-            <div>
-              <span className="eyebrow icon-label">
-                <TikTokIcon size={13} /> TikTok
-              </span>
-              <a className="text-link" href={PROFILE_INFO.tiktok} target="_blank" rel="noopener noreferrer">
-                tiktok.com/@_ldii1 ({PROFILE_INFO.tiktokHandle}) <ArrowUpRight size={17} />
-              </a>
+              <div className="social-pills-row" aria-label="Social Media Links">
+                <a
+                  className="social-pill"
+                  href={PROFILE_INFO.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Code2 size={14} />
+                  <span>GitHub · Meldi0</span>
+                  <ArrowUpRight size={13} />
+                </a>
+                <a
+                  className="social-pill"
+                  href={PROFILE_INFO.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Instagram size={14} />
+                  <span>{PROFILE_INFO.instagramHandle}</span>
+                  <ArrowUpRight size={13} />
+                </a>
+                <a
+                  className="social-pill"
+                  href={PROFILE_INFO.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <TikTokIcon size={14} />
+                  <span>{PROFILE_INFO.tiktokHandle}</span>
+                  <ArrowUpRight size={13} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
