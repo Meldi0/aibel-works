@@ -97,6 +97,7 @@ const INTERNSHIP_POINTS = [
 const LAB_EXPLORATIONS = [
   {
     code: 'EXP-01',
+    group: 'ai',
     title: 'Local AI Shipment Agent',
     category: 'AI Engineering • Internship Project',
     tagline: 'Turning tracking data into actionable insights.',
@@ -107,6 +108,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-02',
+    group: 'ai',
     title: 'Personal Local AI Assistant',
     category: 'AI Experiment • Personal Project',
     tagline: 'An AI assistant that actually understands my workspace.',
@@ -117,6 +119,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-03',
+    group: 'enterprise',
     title: 'POSO System',
     category: 'Full-Stack Web Application • Enterprise System',
     tagline: 'Building better operational workflows.',
@@ -127,6 +130,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-04',
+    group: 'enterprise',
     title: 'Regional Performance Dashboard',
     category: 'Data Visualization • Analytics Dashboard',
     tagline: 'Making complex data easier to understand.',
@@ -137,6 +141,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-05',
+    group: 'enterprise',
     title: 'iPOS5 Data Integration',
     category: 'Enterprise Data • Internship Project',
     tagline: 'Better systems start with better data.',
@@ -147,6 +152,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-06',
+    group: 'creative',
     title: 'Midnight District',
     category: 'Game Development • Creative Project',
     tagline: 'An immersive city made for exploration and social experiences.',
@@ -157,6 +163,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-07',
+    group: 'creative',
     title: 'GlyphLab',
     category: 'Creative Typography Tool • Web Experiment',
     tagline: 'Making typography a little less boring.',
@@ -167,6 +174,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-08',
+    group: 'enterprise',
     title: 'Top Customer Analytics',
     category: 'Data Analytics • Internship Experience',
     tagline: 'Finding meaningful patterns in business data.',
@@ -177,6 +185,7 @@ const LAB_EXPLORATIONS = [
   },
   {
     code: 'EXP-09',
+    group: 'enterprise',
     title: 'Image Annotation & Operational Tools',
     category: 'Data Operations • Internship Experience',
     tagline: 'The technical work behind reliable data.',
@@ -187,17 +196,27 @@ const LAB_EXPLORATIONS = [
   },
 ];
 
+const LAB_FILTERS = [
+  { id: 'all', label: 'All Explorations (09)' },
+  { id: 'ai', label: 'Local AI & Ollama' },
+  { id: 'enterprise', label: 'PT Pos & Enterprise Data' },
+  { id: 'creative', label: 'Creative Web & 3D' },
+];
+
 export function ProjectsSection() {
   const [selected, setSelected] = useState<ProjectItem | null>(null);
   const [expandedLabs, setExpandedLabs] = useState<Record<string, boolean>>({});
+  const [labFilter, setLabFilter] = useState<string>('all');
   const close = useCallback(() => setSelected(null), []);
   const reduced = useReducedMotion();
   const toggleLab = (code: string) =>
     setExpandedLabs(prev => ({ ...prev, [code]: !prev[code] }));
+  const filteredLabs =
+    labFilter === 'all' ? LAB_EXPLORATIONS : LAB_EXPLORATIONS.filter(item => item.group === labFilter);
   return <>
     <section id="projects" data-tone="light" className="projects-section section-shell">
       <SectionLabel number="04" detail="Things I've been building">Featured Projects</SectionLabel>
-      <div className="section-heading-row"><h2 className="display-heading"><Reveal>Project</Reveal><Reveal delay={.08}><span className="muted">archive.</span></Reveal></h2><p><Reveal>A collection of personal projects, real-world applications, creative experiments, and systems I’ve worked on throughout my development journey.</Reveal></p></div>
+      <div className="section-heading-row"><h2 className="display-heading"><Reveal>Project</Reveal><Reveal delay={.08}><span className="muted creative-serif-accent">archive.</span></Reveal></h2><p><Reveal>A collection of personal projects, real-world applications, creative experiments, and systems I’ve worked on throughout my development journey.</Reveal></p></div>
       <LayoutGroup id="project-archive">
         <div className="project-list">{PROJECTS_DATA.map((project, idx) => <StaggerCard className="project" key={project.id} index={idx}>
           <div className="project-info"><span className="eyebrow"><Reveal>{project.number} / {project.year}</Reveal></span>
@@ -221,10 +240,21 @@ export function ProjectsSection() {
             <span className="eyebrow icon-label"><Sparkles size={13} /> R&D Lab & Ongoing Explorations</span>
             <h3><Reveal>Additional AI, Creative & Data Projects</Reveal></h3>
           </div>
-          <p className="muted"><Reveal delay={0.06}>Some are ongoing developments, and some are experiments where I’m exploring what’s possible.</Reveal></p>
+          <div className="stack-filters lab-filter-pills" role="group" aria-label="Filter R&D explorations">
+            {LAB_FILTERS.map(f => (
+              <button
+                key={f.id}
+                type="button"
+                aria-pressed={labFilter === f.id}
+                onClick={() => setLabFilter(f.id)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="what-i-do-grid">
-          {LAB_EXPLORATIONS.map((item, idx) => {
+          {filteredLabs.map((item, idx) => {
             const Icon = item.Icon;
             const isExpanded = !!expandedLabs[item.code];
             return (
@@ -258,8 +288,27 @@ export function ProjectsSection() {
     <section id="experience" data-tone="dark" className="experience-section section-shell">
       <SectionLabel number="05" detail="SMK Software Engineering (RPL) • PT Pos Indonesia">Experience & Education</SectionLabel>
       <div className="section-heading-row">
-        <h2 className="display-heading"><Reveal>Learning beyond</Reveal><Reveal delay={.08}><span className="muted">the classroom.</span></Reveal></h2>
+        <h2 className="display-heading"><Reveal>Learning beyond</Reveal><Reveal delay={.08}><span className="muted creative-serif-accent">the classroom.</span></Reveal></h2>
         <p><Reveal>PT Pos Indonesia · Operations Control (Pengendalian Operasi) | Bandung</Reveal></p>
+      </div>
+
+      {/* Creative Journey Pathway: SMK RPL -> PT Pos Indonesia -> POPELL Studio */}
+      <div className="journey-pathway-grid">
+        <StaggerCard className="journey-node-card" index={0}>
+          <span className="journey-step-badge">01 · VOCATIONAL FOUNDATION</span>
+          <h4>SMK — Software Engineering (RPL)</h4>
+          <p>Rekayasa Perangkat Lunak — building full-stack web apps, relational databases (MySQL), PHP/Laravel backends, and modern React/TypeScript interfaces.</p>
+        </StaggerCard>
+        <StaggerCard className="journey-node-card is-highlighted" index={1}>
+          <span className="journey-step-badge">02 · INDUSTRY INTERNSHIP (PKL)</span>
+          <h4>PT Pos Indonesia — Operations Control</h4>
+          <p>Bagian Pengendalian Operasi — developing operational dashboards, Local AI Shipment Agents (Ollama + MongoDB), POSO workflows, and iPOS5 master data integration.</p>
+        </StaggerCard>
+        <StaggerCard className="journey-node-card" index={2}>
+          <span className="journey-step-badge">03 · POPELL CREATIVE &amp; AI R&amp;D</span>
+          <h4>Creative Technologist &amp; AI Explorer</h4>
+          <p>Crafting interactive digital studios (Snapdays Photobooth, GlyphLab), 3D web/game environments (Midnight District), and workspace-aware local AI tools.</p>
+        </StaggerCard>
       </div>
       <div className="experience-card">
         <div className="experience-header">

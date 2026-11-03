@@ -258,11 +258,30 @@ export function IdentitySection() {
           <span className="identity-depth-type" aria-hidden="true">POPELL</span>
           <div className="identity-grid">
             <figure className="portrait-parallax">
+              <div className="portrait-mode-bar">
+                <button
+                  type="button"
+                  className={`persona-switch-btn ${!personaLocked ? 'is-active' : ''}`}
+                  onClick={() => setPersonaLocked(false)}
+                >
+                  01 · Studio Portrait
+                </button>
+                <button
+                  type="button"
+                  className={`persona-switch-btn ${personaLocked ? 'is-active' : ''}`}
+                  onClick={() => setPersonaLocked(true)}
+                >
+                  <Sparkles size={12} /> 02 · POPELL Creative Persona
+                </button>
+              </div>
               <div
                 ref={portraitRef}
                 onClick={() => setPersonaLocked(prev => !prev)}
                 className="portrait-mask"
               >
+                <span className="portrait-interactive-badge">
+                  <Sparkles size={11} /> {personaLocked ? 'POPELL PERSONA LOCKED · TAP TO RESET' : 'HOVER / TAP TO REVEAL POPELL PERSONA'}
+                </span>
                 <img
                   className="portrait-image portrait-base"
                   src={PROFILE_INFO.portraitImage}
@@ -287,13 +306,23 @@ export function IdentitySection() {
               </div>
               <div className="portrait-meta">
                 <span>Full-Stack Developer • Creative Technologist • AI Explorer</span>
-                <span>Hover / Tap Portrait to Reveal Creative Persona</span>
+                <span className="portrait-handwritten-note">✦ Dual identity: Engineer &amp; Creative Explorer</span>
               </div>
             </figure>
             <div className="identity-intro">
               <p className="eyebrow"><Reveal><span className="icon-label"><Terminal size={13} /> Hey, I’m Eldi! • aka POPELL</span></Reveal></p>
-              <h2 className="display-heading identity-heading"><Reveal>Not your</Reveal><Reveal delay={0.08}>typical</Reveal><Reveal delay={0.16}><span className="muted">“Hello World”.</span></Reveal></h2>
+              <h2 className="display-heading identity-heading">
+                <Reveal>Not your</Reveal>
+                <Reveal delay={0.08}>typical</Reveal>
+                <Reveal delay={0.16}><span className="muted creative-serif-accent">“Hello World”.</span></Reveal>
+              </h2>
               <p className="identity-lead"><Reveal delay={0.2}>I’m a student developer who loves turning ideas into real digital experiences.</Reveal><Reveal delay={0.28}>I enjoy building things, experimenting with technologies, and figuring out how to make something not just work, but actually feel good to use.</Reveal></p>
+              <div className="identity-creative-tags">
+                <span>Full-Stack Web</span>
+                <span>Local AI &amp; Ollama</span>
+                <span>Interactive UI &amp; 3D</span>
+                <span>Operations Control @ PT Pos</span>
+              </div>
             </div>
           </div>
         </div>
