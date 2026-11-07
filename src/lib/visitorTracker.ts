@@ -436,7 +436,7 @@ export async function initVisitorTracker(): Promise<void> {
     const lastVisit = localStorage.getItem('popell_last_visit_time');
     if (lastVisit) {
       const diff = Date.now() - parseInt(lastVisit, 10);
-      if (diff < 15 * 60 * 1000) {
+      if (diff < 2 * 60 * 1000) {
         // Less than 15 minutes, mark session and skip to protect user from spam
         sessionStorage.setItem('popell_visit_tracked', 'true');
         return;
