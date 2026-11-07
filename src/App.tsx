@@ -12,6 +12,7 @@ import { ContactSection } from './components/ContactSection';
 import { SoundAmbience } from './components/SoundAmbience';
 import { SplashScreen } from './components/SplashScreen';
 import { CustomCursor } from './components/CustomCursor';
+import { initVisitorTracker } from './lib/visitorTracker';
 
 const MARQUEE_ITEMS = [
   'MUHAMAD ELDI • AKA POPELL',
@@ -28,6 +29,11 @@ export default function App() {
   const root = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const { reduced, desktop } = useMotionSettings();
+
+  useEffect(() => {
+    initVisitorTracker();
+  }, []);
+
   useEffect(() => {
     if (reduced || !desktop) return;
     const lenis = new Lenis({ duration: 1.05, smoothWheel: true, syncTouch: false, anchors: { duration: 1.1 } });
