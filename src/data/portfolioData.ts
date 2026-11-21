@@ -11,7 +11,7 @@ export const PROFILE_INFO = {
   coordinates: "6°54'53.0\"S 107°36'35.0\"E",
   bio: `Student developer & creative technologist yang hobi ngulik teknologi dari nol—menggabungkan rekayasa sistem logistik nasional (PT Pos Indonesia), UI interaktif yang halus, dan eksperimen AI lokal (Ollama + MongoDB).`,
   portraitImage: new URL('../assets/images/eldi_real_original.webp', import.meta.url).href,
-  personaPortraitImage: new URL('../assets/images/eldi_aibel_persona.webp', import.meta.url).href,
+  personaPortraitImage: new URL('../assets/images/eldi_real_editorial.webp', import.meta.url).href,
   email: 'muheldinug122@gmail.com',
   github: 'https://github.com/Meldi0',
   instagram: 'https://www.instagram.com/_kubill/',

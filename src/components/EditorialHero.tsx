@@ -502,7 +502,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
               <span className="curtain-mono-tag">00 / STUDIO PROFILE · BANDUNG, ID</span>
               <span className="curtain-mono-note">
                 <Sparkles size={11} />{' '}
-                {isMobile ? 'Sentuh atau geser foto · Liquid Brush Reveal' : 'Gerakkan kursor di foto · Liquid Brush & 3D Tilt'}
+                {isMobile ? 'Sentuh atau geser foto · Liquid Mono Brush' : 'Gerakkan kursor di foto · Liquid Mono Brush & 3D Tilt'}
               </span>
             </div>
 
@@ -514,7 +514,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
               <motion.div
                 ref={portraitRef}
                 className="curtain-portrait-canvas is-real-photo"
-                data-cursor={artLocked ? 'ORIGINAL' : 'BRUSH'}
+                data-cursor={artLocked ? 'COLOR' : 'MONO'}
                 style={
                   isMobile
                     ? undefined
@@ -533,7 +533,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
                     setArtLocked(prev => !prev);
                   }
                 }}
-                aria-label="Gerakkan kursor atau klik foto untuk efek Liquid Brush Reveal ke AIBEL Art"
+                aria-label="Gerakkan kursor atau klik foto untuk efek Liquid Brush ke versi Editorial Mono"
               >
                 <img
                   src={PROFILE_INFO.portraitImage}
@@ -594,7 +594,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
                     className={!artLocked ? 'is-active' : ''}
                     onClick={() => setArtLocked(false)}
                   >
-                    Original
+                    Studio
                   </button>
                   <span aria-hidden="true">/</span>
                   <button
@@ -603,7 +603,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
                     className={artLocked ? 'is-active' : ''}
                     onClick={() => setArtLocked(true)}
                   >
-                    AIBEL Art
+                    Mono
                   </button>
                 </div>
 
