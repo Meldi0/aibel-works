@@ -95,7 +95,7 @@ function CoverflowScrollCard({
       onClick={onClick}
       aria-label={isFocused ? `Perbesar ${frame.label}` : `Fokus ke ${frame.label}`}
     >
-      <img src={frame.src} alt={frame.caption} draggable={false} decoding="async" />
+      <img src={frame.src} alt={frame.caption} draggable={false} decoding="async" width={720} height={450} />
       {isFocused && (
         <span className="coverflow-zoom-pill">
           <Maximize2 size={12} /> Layar Penuh
@@ -277,15 +277,14 @@ export function LampiranVaultSection({ onSelectProject }: LampiranVaultSectionPr
                     : `Scroll turun / naik untuk menggeser semua ${filteredFrames.length} layar`}
                 </span>
                 <div className="coverflow-filter-row">
-                  <div className="filter-pill-group" role="tablist" aria-label="Filter galeri lampiran">
+                  <div className="filter-pill-group" role="group" aria-label="Filter galeri lampiran">
                     {tabs.map(tab => {
                       const isActive = galleryFilter === tab.id;
                       return (
                         <button
                           key={tab.id}
                           type="button"
-                          role="tab"
-                          aria-selected={isActive}
+                          aria-pressed={isActive}
                           className={`filter-pill ${isActive ? 'is-active' : ''}`}
                           onClick={() => {
                             setGalleryFilter(tab.id);
@@ -355,7 +354,7 @@ export function LampiranVaultSection({ onSelectProject }: LampiranVaultSectionPr
                         else setActiveIdx(idx);
                       }}
                     >
-                      <img src={frame.src} alt={frame.caption} draggable={false} decoding="async" />
+                      <img src={frame.src} alt={frame.caption} draggable={false} decoding="async" width={720} height={450} />
                       {isCenter && (
                         <span className="coverflow-zoom-pill is-always-touch">
                           <Maximize2 size={12} /> Zoom
@@ -434,7 +433,7 @@ export function LampiranVaultSection({ onSelectProject }: LampiranVaultSectionPr
               <div
                 className="coverflow-scrubber-dock"
                 onMouseLeave={() => setHoveredTick(null)}
-                role="tablist"
+                role="group"
                 aria-label="Lompat cepat ke layar"
               >
                 {filteredFrames.map((f, idx) => {
@@ -445,8 +444,7 @@ export function LampiranVaultSection({ onSelectProject }: LampiranVaultSectionPr
                     <button
                       key={f.id}
                       type="button"
-                      role="tab"
-                      aria-selected={isAct}
+                      aria-pressed={isAct}
                       className={`coverflow-tick ${isAct ? 'is-active' : ''}`}
                       onMouseEnter={() => setHoveredTick(idx)}
                       onClick={() => scrollToFrame(idx)}

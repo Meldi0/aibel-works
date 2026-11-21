@@ -1,6 +1,7 @@
 import { useRef, type ReactNode } from 'react';
 import { motion, useInView, useReducedMotion } from 'motion/react';
-import { EASE } from '../lib/motion';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function Reveal({
   children,

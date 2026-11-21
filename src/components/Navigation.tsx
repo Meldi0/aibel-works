@@ -9,6 +9,7 @@ interface NavigationProps {
   isAudioPlaying: boolean;
   onToggleAudio: () => void;
   projectCount: number;
+  onEnsureReady?: () => void;
 }
 
 const NAV_LINKS = [
@@ -39,6 +40,7 @@ export function Navigation({
   isAudioPlaying,
   onToggleAudio,
   projectCount,
+  onEnsureReady,
 }: NavigationProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState('hero');
@@ -51,18 +53,15 @@ export function Navigation({
   }, []);
 
   useEffect(() => {
-    const sections = NAV_LINKS.map(l => document.getElementById(l.id)).filter(
-      (el): el is HTMLElement => Boolean(el)
-    );
-    if (!sections.length) return;
-
     const updateActive = () => {
       const marker = window.scrollY + 86;
       let current = 'hero';
-      for (const sec of sections) {
+      for (const link of NAV_LINKS) {
+        const sec = document.getElementById(link.id);
+        if (!sec) continue;
         const rectTop = sec.getBoundingClientRect().top + window.scrollY;
         if (rectTop <= marker) {
-          current = sec.id;
+          current = link.id;
         }
       }
       setActiveId(current);
@@ -103,13 +102,18 @@ export function Navigation({
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     setMenuOpen(false);
-    const target = document.getElementById(id);
-    if (!target) return;
+    onEnsureReady?.();
     if (id === 'hero') {
       smoothScrollTo(0);
     } else {
-      const y = target.getBoundingClientRect().top + window.scrollY;
-      smoothScrollTo(y);
+      const jump = () => {
+        const target = document.getElementById(id);
+        if (!target) return;
+        const y = target.getBoundingClientRect().top + window.scrollY;
+        smoothScrollTo(y);
+      };
+      jump();
+      window.setTimeout(jump, 450);
     }
     window.history.replaceState(null, '', `#${id}`);
   };

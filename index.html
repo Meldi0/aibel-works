@@ -4,33 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is https://*.umami.is https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss: https://formsubmit.co https://nominatim.openstreetmap.org https://api.bigdatacloud.net https://ipwho.is https://ipinfo.io https://freeipapi.com https://discord.com https://*.discord.com https://api.telegram.org https://script.google.com https://script.googleusercontent.com https://cloud.umami.is https://gateway.umami.is https://*.umami.is https://api-gateway.umami.dev https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co;"
     />
-    <meta name="theme-color" content="#090B10" />
+    <meta name="theme-color" content="#06080E" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2306080E'/%3E%3Ccircle cx='18' cy='18' r='5' fill='%236FAEFF'/%3E%3Ctext x='50%25' y='58%25' text-anchor='middle' dominant-baseline='middle' fill='%23FFFFFF' font-family='system-ui,sans-serif' font-size='32' font-weight='800'%3EE%3C/text%3E%3C/svg%3E"
+    />
     <title>Muhamad Eldi (POPELL) — Full-Stack Developer &amp; Creative Technologist</title>
     <meta
       name="description"
       content="Portfolio of Muhamad Eldi (aka POPELL) — Full-Stack Developer, Creative Technologist & AI Explorer. 12+ shipped systems across logistics, enterprise web, creative studios, and local AI."
     />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-TVRLMDNP"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'GTM-TVRLMDNP');
-    </script>
-    <!-- Umami Analytics -->
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="6165442d-0f51-401c-a43c-8e48c5e5ba00"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      />
+    </noscript>
     <meta property="og:title" content="Muhamad Eldi (POPELL) — Full-Stack Developer & Creative Technologist" />
     <meta
       property="og:description"
@@ -42,5 +49,36 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Deferred Analytics (GA4 + Umami) triggered on first user interaction or idle so first paint stays instant -->
+    <script>
+      (function () {
+        var loaded = false;
+        function loadAnalytics() {
+          if (loaded) return;
+          loaded = true;
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { window.dataLayer.push(arguments); }
+          window.gtag = gtag;
+          var g = document.createElement('script');
+          g.async = true;
+          g.src = 'https://www.googletagmanager.com/gtag/js?id=GTM-TVRLMDNP';
+          document.head.appendChild(g);
+          gtag('js', new Date());
+          gtag('config', 'GTM-TVRLMDNP');
+
+          var u = document.createElement('script');
+          u.defer = true;
+          u.src = 'https://cloud.umami.is/script.js';
+          u.setAttribute('data-website-id', '6165442d-0f51-401c-a43c-8e48c5e5ba00');
+          document.head.appendChild(u);
+        }
+        ['pointerdown', 'scroll', 'keydown'].forEach(function (ev) {
+          window.addEventListener(ev, loadAnalytics, { once: true, passive: true });
+        });
+        window.addEventListener('load', function () {
+          setTimeout(loadAnalytics, 4000);
+        });
+      })();
+    </script>
   </body>
 </html>

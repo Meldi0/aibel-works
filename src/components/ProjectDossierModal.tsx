@@ -202,13 +202,12 @@ export function ProjectDossierModal({
                 </p>
 
                 {totalAtt > 1 && (
-                  <div className="case-thumb-rail" role="tablist" aria-label="Pilih tangkapan layar">
+                  <div className="case-thumb-rail" role="group" aria-label="Pilih tangkapan layar">
                     {project.attachments.map((att, idx) => (
                       <button
                         key={att.src}
                         type="button"
-                        role="tab"
-                        aria-selected={idx === attIdx}
+                        aria-pressed={idx === attIdx}
                         className={`case-thumb-chip ${idx === attIdx ? 'is-active' : ''}`}
                         onClick={() => setAttIdx(idx)}
                       >
@@ -251,15 +250,14 @@ export function ProjectDossierModal({
                 </div>
 
                 {/* INTERACTIVE 3-TAB CHAPTER SWITCHER */}
-                <div className="case-chapter-tabs" role="tablist" aria-label="Bagian studi kasus">
+                <div className="case-chapter-tabs" role="group" aria-label="Bagian studi kasus">
                   {chapterTabs.map(({ id, label, Icon }) => {
                     const isAct = activeTab === id;
                     return (
                       <button
                         key={id}
                         type="button"
-                        role="tab"
-                        aria-selected={isAct}
+                        aria-pressed={isAct}
                         className={`case-tab-btn ${isAct ? 'is-active' : ''}`}
                         onClick={() => setActiveTab(id)}
                       >

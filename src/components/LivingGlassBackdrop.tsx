@@ -39,7 +39,7 @@ export function LivingGlassBackdrop({ variant = 'hero' }: { variant?: 'hero' | '
     let smoothScroll = scrollY;
     let rafId = 0;
     let time = 0;
-    let isVisible = true;
+    let isVisible = false;
 
     const onPointerMove = (e: PointerEvent) => {
       mouseX = e.clientX;

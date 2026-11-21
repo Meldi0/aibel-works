@@ -90,15 +90,14 @@ export function ProjectsArchive({ onSelectProject }: ProjectsArchiveProps) {
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="filter-pill-group" role="tablist" aria-label="Filter projek">
+        <div className="filter-pill-group" role="group" aria-label="Filter projek">
           {CATEGORIES.map(cat => {
             const isActive = filter === cat.id;
             return (
               <button
                 key={cat.id}
                 type="button"
-                role="tab"
-                aria-selected={isActive}
+                aria-pressed={isActive}
                 className={`filter-pill ${isActive ? 'is-active' : ''}`}
                 onClick={() => setFilter(cat.id)}
               >
@@ -172,8 +171,10 @@ export function ProjectsArchive({ onSelectProject }: ProjectsArchiveProps) {
                           key={currentAttachment.src}
                           src={currentAttachment.src}
                           alt={currentAttachment.caption}
-                          loading={idx < 6 ? 'eager' : 'lazy'}
+                          loading="lazy"
                           decoding="async"
+                          width={640}
+                          height={400}
                         />
                         <span className="clean-media-gleam" aria-hidden="true" />
                         <div className="clean-media-scrim" aria-hidden="true" />
@@ -304,9 +305,9 @@ export function ProjectsArchive({ onSelectProject }: ProjectsArchiveProps) {
                   className={`matrix-preview-img ${hoveredMatrixProject.aspect === 'portrait' ? 'is-portrait' : ''} ${hoveredMatrixProject.attachments[0]?.kind === 'diagram' ? 'is-diagram' : ''}`}
                   onClick={() => onSelectProject(hoveredMatrixProject, 0)}
                 >
-                  <img src={hoveredMatrixProject.image} alt={hoveredMatrixProject.title} />
+                  <img src={hoveredMatrixProject.image} alt={hoveredMatrixProject.title} loading="lazy" decoding="async" width={640} height={400} />
                 </div>
-                <h4>{hoveredMatrixProject.title}</h4>
+                <h3 className="matrix-preview-title">{hoveredMatrixProject.title}</h3>
                 <p>{hoveredMatrixProject.description}</p>
                 <button
                   type="button"

@@ -10,8 +10,8 @@
   --dark-titanium: #090b10;
   --dark-surface: rgba(18, 22, 34, 0.64);
   --dark-ink: #f4f6fb;
-  --dark-ink-secondary: #a1a9bc;
-  --dark-ink-muted: #6c758a;
+  --dark-ink-secondary: #b4bccf;
+  --dark-ink-muted: #8f99ae;
   --dark-line: rgba(255, 255, 255, 0.1);
   --dark-line-strong: rgba(255, 255, 255, 0.18);
   --ice-blue: #6faeff;
@@ -23,8 +23,8 @@
   --surface-white: #ffffff;
   --obsidian: #0b0d12;
   --ink: #101218;
-  --ink-secondary: #4f5463;
-  --ink-muted: #798092;
+  --ink-secondary: #434857;
+  --ink-muted: #596070;
   --vermilion: #e03a22;
   --emerald: #22c55e;
   --line: rgba(16, 18, 24, 0.085);
@@ -377,7 +377,7 @@ a {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
-  opacity: 0.56;
+  opacity: 0.78;
 }
 
 /* Center Dynamic Island Glass Dock */
@@ -418,7 +418,7 @@ a {
 }
 
 .island-header.is-dark-nav .island-link {
-  color: rgba(244, 246, 251, 0.66);
+  color: rgba(244, 246, 251, 0.82);
 }
 
 .island-header.is-dark-nav .island-link:hover,
@@ -849,7 +849,7 @@ a {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: rgba(186, 212, 255, 0.72);
+  color: rgba(202, 224, 255, 0.88);
   text-transform: uppercase;
 }
 
@@ -895,7 +895,7 @@ a {
   max-width: 580px;
   font-size: clamp(14px, 1.25vw, 15.5px);
   line-height: 1.68;
-  color: rgba(208, 220, 242, 0.76);
+  color: rgba(218, 228, 246, 0.88);
 }
 
 /* PHASE 1 NAKED BORDERLESS BOTTOM BAR */
@@ -932,7 +932,7 @@ a {
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.14em;
-  color: rgba(164, 182, 212, 0.56);
+  color: rgba(186, 204, 232, 0.82);
 }
 
 .keynote-scroll-naked {
@@ -2634,6 +2634,7 @@ a {
   object-fit: contain;
 }
 
+.matrix-preview-plate h3,
 .matrix-preview-plate h4 {
   margin: 0;
   font-size: 18px;

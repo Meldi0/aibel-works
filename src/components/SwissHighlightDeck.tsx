@@ -267,7 +267,7 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
               <span className="swiss-cta-inline">Klik untuk detail lengkap <ArrowUpRight size={14} /></span>
             </div>
             <div className="swiss-frame-shot">
-              <img src={pTarif.image} alt={pTarif.title} />
+              <img src={pTarif.image} alt={pTarif.title} loading="lazy" decoding="async" width={640} height={400} />
             </div>
           </div>
         </>
@@ -307,7 +307,7 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
             </div>
             <div className="swiss-black-visual">
               <div className="swiss-frame-shot">
-                <img src={pPrisma.image} alt={pPrisma.title} />
+                <img src={pPrisma.image} alt={pPrisma.title} loading="lazy" decoding="async" width={640} height={400} />
               </div>
               <span className="swiss-cta-inline">Klik untuk 4 Lampiran PRISMA POS <ArrowUpRight size={14} /></span>
             </div>
@@ -352,10 +352,17 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
             </div>
             <div className="swiss-white-visual-stack">
               <div className="swiss-frame-shot is-compact">
-                <img src={pIpos5.image} alt={pIpos5.title} />
+                <img src={pIpos5.image} alt={pIpos5.title} loading="lazy" decoding="async" width={640} height={400} />
               </div>
               <div className="swiss-mini-plate">
-                <img src="./lampiran/ipos5-simulator-mongo.png" alt="MongoDB Live Simulator" />
+                <img
+                  src="./lampiran/ipos5-simulator-mongo.webp"
+                  alt="MongoDB Live Simulator"
+                  loading="lazy"
+                  decoding="async"
+                  width={320}
+                  height={200}
+                />
                 <span>MongoDB Live Cluster Simulator</span>
               </div>
             </div>
@@ -373,7 +380,14 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
           </div>
           <div className="swiss-metrics-layout">
             <div className="swiss-portrait-inset">
-              <img src={PROFILE_INFO.portraitImage} alt="Muhamad Eldi — Operations Control" />
+              <img
+                src={PROFILE_INFO.portraitImage}
+                alt="Muhamad Eldi — Operations Control"
+                loading="lazy"
+                decoding="async"
+                width={320}
+                height={420}
+              />
               <span className="inset-tag">ELDI // OPS CONTROL</span>
             </div>
             <div className="swiss-metrics-data">
@@ -453,7 +467,7 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
             </div>
           </div>
           <div className="swiss-frame-shot">
-            <img src={pSnapdays.image} alt={pSnapdays.title} />
+            <img src={pSnapdays.image} alt={pSnapdays.title} loading="lazy" decoding="async" width={640} height={400} />
           </div>
         </div>
       </>
@@ -543,15 +557,14 @@ export function SwissHighlightDeck({ onSelectProject }: SwissHighlightDeckProps)
             </div>
 
             {/* Interactive 5-Slide Arc Index Dial with Frosted Active Indicator */}
-            <div className="wheel-index-list" role="tablist" aria-label="Pilih highlight projek">
+            <div className="wheel-index-list" role="group" aria-label="Pilih highlight projek">
               {SLIDES.map((s, idx) => {
                 const isAct = activeIdx === idx;
                 return (
                   <button
                     key={s.id}
                     type="button"
-                    role="tab"
-                    aria-selected={isAct}
+                    aria-pressed={isAct}
                     className={`wheel-index-btn ${isAct ? 'is-active' : ''}`}
                     onClick={() => scrollToSlide(idx)}
                   >

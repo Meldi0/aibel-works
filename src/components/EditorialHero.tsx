@@ -129,10 +129,16 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
     if (!maskCtx) return;
 
     const revealImg = new Image();
-    revealImg.src = PROFILE_INFO.personaPortraitImage;
+    revealImg.decoding = 'async';
+    let revealLoaded = false;
+    const ensureRevealLoaded = () => {
+      if (revealLoaded) return;
+      revealLoaded = true;
+      revealImg.src = PROFILE_INFO.personaPortraitImage;
+    };
 
     let isInside = false;
-    let isVisible = true;
+    let isVisible = false;
     let idleFrames = 0;
     let targetX = W * 0.52;
     let targetY = H * 0.45;
@@ -208,6 +214,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
     };
 
     const onPointerEnter = (e: PointerEvent) => {
+      ensureRevealLoaded();
       const { x, y, nx, ny } = getCanvasCoords(e.clientX, e.clientY);
       targetX = x;
       targetY = y;
@@ -221,6 +228,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      ensureRevealLoaded();
       const { x, y, nx, ny } = getCanvasCoords(e.clientX, e.clientY);
       if (!isInside) {
         smoothX = x;
@@ -325,9 +333,11 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
 
     const observer = new IntersectionObserver(
       entries => {
-        isVisible = entries[0]?.isIntersecting ?? true;
-        if (isVisible) kickLoop();
-        else if (rafId) {
+        isVisible = entries[0]?.isIntersecting ?? false;
+        if (isVisible && (artLocked || isInside)) {
+          ensureRevealLoaded();
+          kickLoop();
+        } else if (!isVisible && rafId) {
           cancelAnimationFrame(rafId);
           rafId = 0;
         }
@@ -337,7 +347,10 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
     observer.observe(container);
 
     revealImg.addEventListener('load', kickLoop);
-    kickLoop();
+    if (artLocked) {
+      ensureRevealLoaded();
+      kickLoop();
+    }
     container.addEventListener('pointerdown', onPointerEnter);
     container.addEventListener('pointerenter', onPointerEnter);
     container.addEventListener('pointermove', onPointerMove);
@@ -405,18 +418,18 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
           >
             <motion.span
               className="keynote-eyebrow-naked"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ y: 8 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               MUHAMAD ELDI (POPELL) &nbsp;·&nbsp; FULL-STACK &amp; CREATIVE TECHNOLOGIST
             </motion.span>
 
             <motion.h1
               className="keynote-colossal-title"
-              initial={{ opacity: 0, y: 34, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ y: 12 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
               <motion.span className="kct-line" style={isMobile ? undefined : { x: lineTopX }}>
                 CRAFTING <em className="font-serif-italic kct-ice">Living</em>
@@ -428,9 +441,9 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
 
             <motion.p
               className="keynote-sub-whisper"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             >
               Sistem logistik nasional PT Pos Indonesia, aplikasi web full-stack, interaksi visual yang ringan, hingga
               Local AI (Ollama + MongoDB).
@@ -442,9 +455,9 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
             key={isMobile ? 'bar-m' : 'bar-d'}
             className={`keynote-bottom-bar ${!isMobile && phase2Active ? 'is-passthrough' : ''}`}
             style={isMobile ? undefined : { opacity: introCueOpacity }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.24 }}
+            initial={{ y: 8 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5 }}
           >
             <span className="keynote-hint-mono">BANDUNG, ID · EDITION 2026</span>
 
@@ -527,7 +540,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
                   alt="Muhamad Eldi (POPELL) — Foto Asli"
                   className="hero-portrait-img is-real-framing"
                   width={960}
-                  height={640}
+                  height={540}
                   loading="eager"
                   decoding="async"
                 />
@@ -574,11 +587,10 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
               </div>
 
               <div className="spec-col-controls">
-                <div className="curtain-layer-switch" role="tablist" aria-label="Mode tampilan foto">
+                <div className="curtain-layer-switch" role="group" aria-label="Mode tampilan foto">
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={!artLocked}
+                    aria-pressed={!artLocked}
                     className={!artLocked ? 'is-active' : ''}
                     onClick={() => setArtLocked(false)}
                   >
@@ -587,8 +599,7 @@ export function EditorialHero({ onSelectProject }: EditorialHeroProps) {
                   <span aria-hidden="true">/</span>
                   <button
                     type="button"
-                    role="tab"
-                    aria-selected={artLocked}
+                    aria-pressed={artLocked}
                     className={artLocked ? 'is-active' : ''}
                     onClick={() => setArtLocked(true)}
                   >
