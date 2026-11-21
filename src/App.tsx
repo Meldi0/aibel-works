@@ -1,32 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import { MotionConfig } from 'motion/react';
-import { gsap, ScrollTrigger, useMotionSettings } from './lib/motion';
-import { HeroScrollExperience } from './components/HeroScrollExperience';
+import { PROJECTS_DATA } from './data/portfolioData';
+import type { ProjectItem } from './types';
+import { GlassCursorHalo } from './components/KineticText';
+import { LivingGlassBackdrop } from './components/LivingGlassBackdrop';
 import { Navigation } from './components/Navigation';
-import { IdentitySection } from './components/IdentitySection';
-import { MetricsSection } from './components/MetricsSection';
-import { ProjectsSection } from './components/ProjectsSection';
-import { ConstellationSection } from './components/ConstellationSection';
+import { EditorialHero } from './components/EditorialHero';
+import { SwissHighlightDeck } from './components/SwissHighlightDeck';
+import { ProjectsArchive } from './components/ProjectsArchive';
+import { LampiranVaultSection } from './components/LampiranVaultSection';
+import { EditorialResumeSection } from './components/EditorialResumeSection';
 import { ContactSection } from './components/ContactSection';
+import { ProjectDossierModal } from './components/ProjectDossierModal';
+import { CommandPalette } from './components/CommandPalette';
+import { TerminalDrawer } from './components/TerminalDrawer';
 import { SoundAmbience } from './components/SoundAmbience';
-import { SplashScreen } from './components/SplashScreen';
-import { CustomCursor } from './components/CustomCursor';
 import { initVisitorTracker } from './lib/visitorTracker';
-
-const MARQUEE_ITEMS = [
-  'MUHAMAD ELDI • AKA POPELL',
-  'CREATIVE TECHNOLOGIST',
-  'FULL-STACK WEB & AI ENGINEER',
-  'INTERACTIVE 3D & KINETIC INTERFACES',
-  'PT POS INDONESIA • OPERATIONS CONTROL',
-  'SMK SOFTWARE ENGINEERING (RPL)',
-];
+import { useMotionSettings } from './lib/motion';
+import { smoothScrollTo } from './lib/smoothScroll';
 
 export default function App() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [splashComplete, setSplashComplete] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<{
+    project: ProjectItem;
+    attIdx: number;
+  } | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const { reduced, desktop } = useMotionSettings();
 
@@ -35,92 +36,127 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (reduced || !desktop) return;
-    const lenis = new Lenis({ duration: 1.05, smoothWheel: true, syncTouch: false, anchors: { duration: 1.1 } });
-    const tick = (time: number) => lenis.raf(time * 1000);
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(tick);
-    const onDialog = (event: Event) => (event as CustomEvent<boolean>).detail ? lenis.stop() : lenis.start();
-    window.addEventListener('portfolio:dialog', onDialog);
-    return () => { window.removeEventListener('portfolio:dialog', onDialog); gsap.ticker.remove(tick); lenis.destroy(); };
-  }, [reduced, desktop]);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandOpen(v => !v);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   useEffect(() => {
-    if (!root.current) return;
-    const light = ['#f5f4f0', '#161719', '#64666b', 'rgba(22,23,25,0.15)'];
-    const dark = ['#08090b', '#f5f4f0', '#a2a5ad', 'rgba(245,244,240,0.17)'];
-    const keys = ['--page-bg', '--page-text', '--page-muted', '--page-line'];
-    let stops: { start: number; end: number; from: string[]; to: string[] }[] = [];
-    const measure = () => {
-      let previous = light;
-      stops = Array.from(document.querySelectorAll<HTMLElement>('[data-tone]')).map(el => {
-        const next = el.dataset.tone === 'dark' ? dark : light;
-        const top = el.getBoundingClientRect().top + window.scrollY;
-        const stop = { start: top - innerHeight * .85, end: top - innerHeight * .18, from: previous, to: next };
-        previous = next;
-        return stop;
-      });
+    const onScroll = () => {
+      if (!progressRef.current) return;
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      progressRef.current.style.transform = `scaleX(${Math.min(1, Math.max(0, window.scrollY / max))})`;
     };
-    let lastColor = '';
-    const luminance = (color: string) => gsap.utils.splitColor(color).slice(0, 3).map(channel => {
-      const s = channel / 255; return s <= .04045 ? s / 12.92 : Math.pow((s + .055) / 1.055, 2.4);
-    }).reduce((sum, channel, i) => sum + channel * [.2126, .7152, .0722][i], 0);
-    const update = () => {
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      if (progressRef.current) {
-        progressRef.current.style.transform = `scaleX(${Math.min(1, Math.max(0, window.scrollY / maxScroll))})`;
-      }
-      let colors = light;
-      for (const stop of stops) {
-        if (scrollY < stop.start) break;
-        const progress = reduced ? (scrollY >= stop.end ? 1 : 0) : gsap.utils.clamp(0, 1, (scrollY - stop.start) / (stop.end - stop.start));
-        colors = stop.to.map((color, i) => gsap.utils.interpolate(stop.from[i], color, progress));
-      }
-      if (lastColor === colors[0]) return;
-      lastColor = colors[0];
-      const backgroundLuminance = luminance(colors[0]);
-      const contrast = (color: string) => { const l = luminance(color); return (Math.max(l, backgroundLuminance) + .05) / (Math.min(l, backgroundLuminance) + .05); };
-      const palette = backgroundLuminance > .179 ? light : dark;
-      // Foreground colors never pass through an unreadable gray-on-gray midpoint.
-      const readable = contrast(palette[1]) >= 4.5 ? palette[1] : backgroundLuminance > .179 ? '#000000' : '#ffffff';
-      colors[1] = readable;
-      colors[2] = contrast(palette[2]) >= 4.5 ? palette[2] : readable;
-      colors[3] = palette[3];
-      keys.forEach((key, i) => root.current?.style.setProperty(key, colors[i]));
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', colors[0]);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    if (reduced || !desktop) {
+      return () => window.removeEventListener('scroll', onScroll);
+    }
+
+    const lenis = new Lenis({ duration: 1.05, smoothWheel: true, syncTouch: false });
+    window.__lenisScrollTo = (top: number) => {
+      lenis.scrollTo(top, { duration: 1.05 });
     };
-    measure();
-    const trigger = ScrollTrigger.create({ start: 0, end: 'max', onUpdate: update, onRefresh: () => { measure(); update(); } });
-    const refresh = () => ScrollTrigger.refresh();
-    document.fonts.ready.then(refresh);
-    window.addEventListener('load', refresh);
-    update();
-    return () => { trigger.kill(); window.removeEventListener('load', refresh); };
-  }, [reduced]);
-  return <MotionConfig reducedMotion="user" transition={{ duration: .9, ease: [.16, 1, .3, 1] }}>
-    {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
-    <CustomCursor />
-    <div ref={root} className="portfolio">
-      <div className="scroll-progress-track" aria-hidden="true"><div ref={progressRef} className="scroll-progress-bar" /></div>
-      <a className="skip-link" href="#identity">Skip to content</a>
-      <Navigation />
-      <main id="main-content">
-        <HeroScrollExperience isAudioPlaying={isAudioPlaying} onToggleAudio={() => setIsAudioPlaying(v => !v)} />
-        <div className="kinetic-marquee-strip" aria-hidden="true">
-          <div className="kinetic-marquee-track">
-            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => (
-              <span key={idx} className="kinetic-marquee-item">
-                {item} <i className="marquee-dot">✦</i>
-              </span>
-            ))}
-          </div>
+    let rafId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      onScroll();
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    const onDialog = (event: Event) => {
+      const isOpen = (event as CustomEvent<boolean>).detail;
+      if (isOpen) lenis.stop();
+      else lenis.start();
+    };
+    window.addEventListener('portfolio:dialog', onDialog);
+
+    return () => {
+      delete window.__lenisScrollTo;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('portfolio:dialog', onDialog);
+      lenis.destroy();
+    };
+  }, [reduced, desktop]);
+
+  const handleSelectProject = useCallback((project: ProjectItem, attIdx = 0) => {
+    setSelectedProject({ project, attIdx });
+  }, []);
+
+  return (
+    <MotionConfig reducedMotion="user" transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}>
+      <div className="studio-gallery-app">
+        <GlassCursorHalo />
+
+        <div className="scroll-progress-track" aria-hidden="true">
+          <div ref={progressRef} className="scroll-progress-bar" />
         </div>
-        <IdentitySection />
-        <MetricsSection />
-        <ConstellationSection />
-        <ProjectsSection />
-        <ContactSection onBackToTop={() => { location.hash = 'hero'; }} />
-      </main>
-      <SoundAmbience isPlaying={isAudioPlaying} onToggle={() => setIsAudioPlaying(v => !v)} />
-    </div>
-  </MotionConfig>;
+
+        <a className="skip-link" href="#highlights">
+          Skip to Highlights
+        </a>
+
+        <Navigation
+          onOpenCommand={() => setCommandOpen(true)}
+          onOpenTerminal={() => setTerminalOpen(true)}
+          isAudioPlaying={isAudioPlaying}
+          onToggleAudio={() => setIsAudioPlaying(v => !v)}
+          projectCount={PROJECTS_DATA.length}
+        />
+
+        <main id="main-content" className="studio-main-layer">
+          {/* ACT I: DARK TITANIUM LIQUID GLASS KEYNOTE HERO */}
+          <EditorialHero onSelectProject={handleSelectProject} />
+
+          {/* ACT II: CLEAN STUDIO TITANIUM CURVED SWISS WHEEL */}
+          <SwissHighlightDeck onSelectProject={handleSelectProject} />
+
+          {/* ACT III: PURE PORCELAIN GALLERY (12 WORKS + 26 SCREENS) */}
+          <div className="light-gallery-band">
+            <ProjectsArchive onSelectProject={handleSelectProject} />
+            <LampiranVaultSection onSelectProject={handleSelectProject} />
+          </div>
+
+          {/* ACT IV: DARK SPACE TITANIUM LIQUID GLASS FINALE (PROCESS + CONTACT) */}
+          <div className="dark-finale-band">
+            <LivingGlassBackdrop variant="finale" />
+            <div className="dark-finale-inner">
+              <EditorialResumeSection onOpenTerminal={() => setTerminalOpen(true)} />
+              <ContactSection
+                onBackToTop={() => {
+                  smoothScrollTo(0);
+                }}
+              />
+            </div>
+          </div>
+        </main>
+
+        <ProjectDossierModal
+          project={selectedProject?.project ?? null}
+          initialAttachmentIndex={selectedProject?.attIdx ?? 0}
+          onClose={() => setSelectedProject(null)}
+          onSelectProject={handleSelectProject}
+        />
+
+        <CommandPalette
+          open={commandOpen}
+          onClose={() => setCommandOpen(false)}
+          onOpenTerminal={() => setTerminalOpen(true)}
+          onSelectProject={p => handleSelectProject(p, 0)}
+        />
+
+        <TerminalDrawer open={terminalOpen} onClose={() => setTerminalOpen(false)} />
+
+        <SoundAmbience isPlaying={isAudioPlaying} onToggle={() => setIsAudioPlaying(v => !v)} />
+      </div>
+    </MotionConfig>
+  );
 }

@@ -1,10 +1,24 @@
+export type ProjectCategory = 'posind' | 'creative' | 'mobile-school' | 'ai';
+
+export interface ProjectAttachment {
+  src: string;
+  label: string;
+  caption: string;
+  kind?: 'ui' | 'diagram' | 'mobile';
+}
+
 export interface ProjectItem {
   id: string;
   number: string;
+  code: string;
   title: string;
   subtitle: string;
+  category: ProjectCategory;
+  categoryLabel: string;
+  client: string;
   role: string;
   year: string;
+  status: string;
   description: string;
   fullCaseStudy: {
     overview: string;
@@ -12,41 +26,21 @@ export interface ProjectItem {
     architectureSolution: string;
     keyAchievements: string[];
     metrics: { label: string; value: string }[];
-    architectureDiagram?: string;
   };
   technologies: string[];
   metrics: string;
   image: string;
+  attachments: ProjectAttachment[];
   aspect?: 'landscape' | 'portrait';
   liveUrl?: string;
   githubUrl?: string;
 }
 
-export interface MetricItem {
-  number: string;
-  value: string;
-  label: string;
-  sublabel: string;
-  detail: string;
-}
-
-export interface TechNode {
+export interface SkillItem {
   id: string;
   name: string;
-  category: 'core' | 'database' | 'backend' | 'frontend' | 'spatial';
-  level: string;
-  description: string;
-  x?: number;
-  y?: number;
-  vx?: number;
-  vy?: number;
-}
-
-export interface ScrollHeroState {
-  id: number;
-  line1: string;
-  line2: string;
-  category: string;
-  description: string;
-  stageProgress: [number, number];
+  category: 'frontend' | 'backend' | 'database' | 'ai-creative';
+  level: number;
+  usedIn: string;
+  detail: string;
 }

@@ -13,15 +13,19 @@ export function Reveal({
 }) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
-  const visible = useInView(ref, { once: true, amount: 0.15 });
+  const visible = useInView(ref, { once: false, amount: 0.15 });
 
   return (
     <span ref={ref} className={`reveal-mask ${className}`}>
       <motion.span
         className="reveal-content"
-        initial={reduced ? false : { y: '108%', opacity: 0 }}
-        animate={visible || reduced ? { y: 0, opacity: 1 } : undefined}
-        transition={{ duration: 0.85, ease: EASE, delay: reduced ? 0 : delay }}
+        initial={reduced ? false : { y: '108%', opacity: 0, filter: 'blur(6px)' }}
+        animate={
+          visible || reduced
+            ? { y: 0, opacity: 1, filter: 'blur(0px)' }
+            : { y: '108%', opacity: 0, filter: 'blur(6px)' }
+        }
+        transition={{ duration: 0.78, ease: EASE, delay: reduced ? 0 : delay }}
       >
         {children}
       </motion.span>
@@ -39,7 +43,7 @@ export function SectionLabel({
   detail?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const visible = useInView(ref, { once: true, amount: 0.2 });
+  const visible = useInView(ref, { once: false, amount: 0.2 });
 
   return (
     <div ref={ref} className={`section-label ${visible ? 'is-inview' : ''}`}>
@@ -73,15 +77,19 @@ export function StaggerCard({
 }) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
-  const visible = useInView(ref, { once: true, amount: 0.12 });
+  const visible = useInView(ref, { once: false, amount: 0.12 });
 
   return (
     <motion.article
       ref={ref}
       onClick={onClick}
       className={className}
-      initial={reduced ? false : { opacity: 0, y: 26 }}
-      animate={visible || reduced ? { opacity: 1, y: 0 } : undefined}
+      initial={reduced ? false : { opacity: 0, y: 26, filter: 'blur(4px)' }}
+      animate={
+        visible || reduced
+          ? { opacity: 1, y: 0, filter: 'blur(0px)' }
+          : { opacity: 0, y: 26, filter: 'blur(4px)' }
+      }
       transition={{
         duration: 0.72,
         ease: EASE,
